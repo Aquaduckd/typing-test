@@ -1,17 +1,19 @@
 # Typing Test
 
-A browser typing test built for **practice**. As you type, the site learns which letter combinations are slow for you and underlines them in real time — so you can put extra focus on those spots and naturally improve over time.
+A browser typing test built for **practice**. The site learns which letter combinations are slow for you, marks them with orange underlines ahead of time, and shows whether you beat your average as you type — so you can give those spots extra focus without breaking rhythm.
 
 Monkeytype-style timing and feel, with ngram-aware feedback layered on top.
 
 ## How practice works
 
-While you type, your slowest trigrams get underlined based on your lifetime stats:
+The site tracks your slowest trigrams over time and marks them with **orange underlines** before you reach them — a cue to pay extra attention, not to slow down.
 
-- **Red** — slower than your average for that trigram; worth slowing down and paying attention
-- **Green** — faster than your average; you're getting comfortable with this one
+As you type through each one:
 
-The goal is not just to hit a WPM number once. Keep practicing, notice the underlines, and your weak ngrams gradually speed up.
+- **Green** — faster than your average; you nailed it at speed
+- **Red** — slower than your average this time
+
+The idea is simple: watch for orange, stay at pace, and try to turn it green. Over time those weak spots stop showing up.
 
 ## Typing test
 
