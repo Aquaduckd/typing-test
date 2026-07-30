@@ -25,6 +25,7 @@ export type TestResult = {
   accuracy: number;
   consistency: number;
   durationMs: number;
+  completedAt?: number;
   charStats: [number, number, number, number];
   chartData: {
     labels: string[];
@@ -236,6 +237,7 @@ export function buildTestResult(state: TestState): TestResult {
     accuracy,
     consistency,
     durationMs,
+    completedAt: Date.now(),
     charStats: [
       charCounts.correct,
       charCounts.incorrect,
@@ -256,6 +258,13 @@ export function buildTestResult(state: TestState): TestResult {
 
 export function formatResultTime(ms: number): string {
   return `${roundTo2(ms / 1000)}s`;
+}
+
+export function formatResultDateTime(timestampMs: number): string {
+  return new Date(timestampMs).toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
 }
 
 export function formatTypingSpeed(value: number): string {

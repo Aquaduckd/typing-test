@@ -1,4 +1,8 @@
-import { sortNgrams, type NgramSortKey, type NgramStat } from "./ngrams";
+import {
+  sortNgrams,
+  type NgramSortKey,
+  type NgramStat,
+} from "./ngrams";
 import type { StoredNgramAggregate } from "./ngram-storage";
 
 export type NgramTableElements = {
@@ -25,6 +29,49 @@ export function storedAggregatesToStats(
     meanMs: Math.round(totalMs / count),
     count,
   }));
+}
+
+function getStoredMeanMs(
+  store: Record<string, StoredNgramAggregate>,
+  ngram: string,
+): number | null {
+  const entry = store[ngram];
+  if (!entry || entry.count === 0) return null;
+  return Math.round(entry.totalMs / entry.count);
+}
+
+export function enrichNgramStatsWithGlobalMean(
+  rows: NgramStat[],
+  store: Record<string, StoredNgramAggregate>,
+): NgramStat[] {
+  return rows.map((row) => ({
+    ...row,
+    globalMeanMs: getStoredMeanMs(store, row.ngram),
+  }));
+}
+
+function getCellClassName(key: NgramSortKey): string {
+  switch (key) {
+    case "ngram":
+      return "px-3 py-2 align-middle font-medium text-zinc-100";
+    case "count":
+      return "px-3 py-2 align-middle text-zinc-500";
+    default:
+      return "px-3 py-2 align-middle text-zinc-300";
+  }
+}
+
+function formatCellValue(row: NgramStat, key: NgramSortKey): string {
+  switch (key) {
+    case "ngram":
+      return row.ngram;
+    case "meanMs":
+      return String(row.meanMs);
+    case "globalMeanMs":
+      return row.globalMeanMs == null ? "—" : String(row.globalMeanMs);
+    case "count":
+      return String(row.count);
+  }
 }
 
 export function createNgramTable(elements: NgramTableElements): NgramTableController {
@@ -56,19 +103,13 @@ export function createNgramTable(elements: NgramTableElements): NgramTableContro
       const tr = document.createElement("tr");
       tr.className = "border-t border-zinc-800/60";
 
-      const ngramCell = document.createElement("td");
-      ngramCell.className = "px-3 py-2 align-middle font-medium text-zinc-100";
-      ngramCell.textContent = row.ngram;
+      for (const { key } of elements.sortHeaders) {
+        const cell = document.createElement("td");
+        cell.className = getCellClassName(key);
+        cell.textContent = formatCellValue(row, key);
+        tr.append(cell);
+      }
 
-      const meanCell = document.createElement("td");
-      meanCell.className = "px-3 py-2 align-middle text-zinc-300";
-      meanCell.textContent = String(row.meanMs);
-
-      const countCell = document.createElement("td");
-      countCell.className = "px-3 py-2 align-middle text-zinc-500";
-      countCell.textContent = String(row.count);
-
-      tr.append(ngramCell, meanCell, countCell);
       elements.bodyEl.append(tr);
     }
   }

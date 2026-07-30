@@ -4,9 +4,10 @@ export type NgramStat = {
   ngram: string;
   meanMs: number;
   count: number;
+  globalMeanMs?: number | null;
 };
 
-export type NgramSortKey = "ngram" | "meanMs" | "count";
+export type NgramSortKey = "ngram" | "meanMs" | "globalMeanMs" | "count";
 
 export const MAX_NGRAM_DURATION_MS = 1000;
 
@@ -88,6 +89,11 @@ export function sortNgrams(
         return direction * a.ngram.localeCompare(b.ngram);
       case "meanMs":
         return direction * (a.meanMs - b.meanMs) || a.ngram.localeCompare(b.ngram);
+      case "globalMeanMs": {
+        const aMs = a.globalMeanMs ?? (ascending ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY);
+        const bMs = b.globalMeanMs ?? (ascending ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY);
+        return direction * (aMs - bMs) || a.ngram.localeCompare(b.ngram);
+      }
       case "count":
         return direction * (a.count - b.count) || a.ngram.localeCompare(b.ngram);
     }

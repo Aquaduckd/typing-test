@@ -5,10 +5,13 @@ import {
   updateResultChart,
 } from "./chart";
 import { queryRequired } from "./dom";
-import { createNgramTable } from "./ngram-table";
+import { createNgramTable, enrichNgramStatsWithGlobalMean } from "./ngram-table";
+import { loadStoredNgramStats } from "./ngram-storage";
+import { clearStoredLastResult, saveStoredLastResult } from "./result-storage";
 import {
   formatAccuracy,
   formatPercentage,
+  formatResultDateTime,
   formatResultTime,
   formatTypingSpeed,
   type TestResult,
@@ -19,6 +22,7 @@ const resultEl = queryRequired<HTMLElement>("#result");
 
 const wpmEl = queryRequired<HTMLElement>("#result-wpm");
 const accEl = queryRequired<HTMLElement>("#result-acc");
+const dateEl = queryRequired<HTMLElement>("#result-date");
 const rawEl = queryRequired<HTMLElement>("#result-raw");
 const charsEl = queryRequired<HTMLElement>("#result-chars");
 const consistencyEl = queryRequired<HTMLElement>("#result-consistency");
@@ -59,6 +63,11 @@ const bigramTable = createNgramTable({
       label: "avg ms",
     },
     {
+      button: queryRequired<HTMLButtonElement>("#bigram-sort-global-ms"),
+      key: "globalMeanMs",
+      label: "global ms",
+    },
+    {
       button: queryRequired<HTMLButtonElement>("#bigram-sort-count"),
       key: "count",
       label: "count",
@@ -79,6 +88,11 @@ const trigramTable = createNgramTable({
       button: queryRequired<HTMLButtonElement>("#trigram-sort-ms"),
       key: "meanMs",
       label: "avg ms",
+    },
+    {
+      button: queryRequired<HTMLButtonElement>("#trigram-sort-global-ms"),
+      key: "globalMeanMs",
+      label: "global ms",
     },
     {
       button: queryRequired<HTMLButtonElement>("#trigram-sort-count"),
@@ -120,6 +134,10 @@ function updateResultsVisibility(): void {
 function populateResult(result: TestResult): void {
   wpmEl.textContent = formatTypingSpeed(result.wpm);
   accEl.textContent = formatAccuracy(result.accuracy);
+  dateEl.textContent =
+    result.completedAt == null
+      ? "—"
+      : formatResultDateTime(result.completedAt);
   rawEl.textContent = formatTypingSpeed(result.rawWpm);
   charsEl.textContent = result.charStats.join("/");
   consistencyEl.textContent = formatPercentage(result.consistency);
@@ -133,13 +151,20 @@ function populateResult(result: TestResult): void {
   setToggleState(toggleRawBtn, rawVisible);
   setToggleState(toggleErrorsBtn, errorsVisible);
 
-  bigramTable.resetRows(result.bigrams);
-  trigramTable.resetRows(result.trigrams);
+  const stored = loadStoredNgramStats();
+
+  bigramTable.resetRows(
+    enrichNgramStatsWithGlobalMean(result.bigrams, stored.bigrams),
+  );
+  trigramTable.resetRows(
+    enrichNgramStatsWithGlobalMean(result.trigrams, stored.trigrams),
+  );
   setResultTabState(activeTab);
 }
 
 export function setLastResult(result: TestResult): void {
   lastResult = result;
+  saveStoredLastResult(result);
   populateResult(result);
   updateResultsVisibility();
 }
@@ -159,6 +184,7 @@ export function refreshResultsView(): void {
 
 export function clearResultsView(): void {
   lastResult = null;
+  clearStoredLastResult();
   destroyResultChart();
   setResultTabState("summary");
   bigramTable.resetRows([]);

@@ -32,6 +32,7 @@ import {
 import { renderWords, setActiveWordHighlight } from "./render";
 import { recordKeystrokeNgrams } from "./ngram-storage";
 import { buildTestResult, getResultKeystrokes } from "./result-stats";
+import { loadStoredLastResult } from "./result-storage";
 import { refreshResultsView, setLastResult } from "./result";
 import { onSiteTabChange, setSiteTab, getSiteTab } from "./site-nav";
 import { refreshStatsView } from "./stats-page";
@@ -232,6 +233,11 @@ onSiteTabChange((tab) => {
 });
 
 initTest();
+
+const storedResult = loadStoredLastResult();
+if (storedResult) {
+  setLastResult(storedResult);
+}
 
 window.addEventListener("load", () => {
   if (getSiteTab() === "test") {
