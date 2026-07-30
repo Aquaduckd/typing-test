@@ -6,35 +6,39 @@ Monkeytype-style timing and feel, with ngram-aware feedback layered on top.
 
 ## How practice works
 
-The site tracks your slowest trigrams over time and marks them with **orange underlines** before you reach them - a cue to focus on typing that ngram faster. 
+The site tracks your slowest trigrams over time and marks them with **orange underlines** before you reach them — a cue to focus on typing that ngram faster.
 
 As you type through each one:
 
 - **Green** — faster than your average; you nailed it at speed
 - **Red** — slower than your average this time
 
-The idea is simple: watch for orange, stay at pace, and try to turn it green. 
+The idea is simple: watch for orange, stay at pace, and try to turn it green.
 
 ## Typing test
 
 - **15-second timed test** — start typing on any key; a progress bar shows time remaining
 - **Per-letter feedback** — smooth caret, line scrolling, and click-to-focus
 - **Restart with Esc** — mid-test restart keeps the same words so you can retry the same passage
+- **Smart word selection** — words are picked using your lifetime trigram stats (see [Words](#words))
 
 ## Results
 
 After each test:
 
 - **WPM, raw WPM, accuracy, and consistency**
+- **Mode** — the word list used for that run (preset name or custom)
 - **WPM chart** with burst, raw, and error overlays
-- **Bigram and trigram breakdown** for that run, compared to your lifetime averages
+- **Bigram and trigram breakdown** for that run, with:
+  - **Global ms** — your lifetime average for each ngram (after this test is recorded)
+  - **Δ ms** — change from before to after this run; green ↓ if faster, red ↑ if slower
 - Your last result is saved locally with date and time
 
 ## Ngrams
 
-Lifetime bigram and trigram stats power the underlines and deepen over time:
+Lifetime bigram and trigram stats power the underlines, word selection, and deepen over time:
 
-- Sortable tables for bigrams and trigrams (avg ms and count)
+- Sortable tables for bigrams and trigrams (avg ms, global ms, Δ ms, and count)
 - **Download JSON** export with a timestamped filename
 - **Reset ngrams** to start fresh
 
@@ -51,6 +55,16 @@ Choose what you practice on:
 
 - Presets: **e200**, **1k**, **5k**, **10k**, **25k**, **450k**
 - **Custom** list — paste your own words (saved locally)
+
+Word selection is **trigram-informed**, not purely random:
+
+1. Draw **10 random candidates** from the active list (fast even on large lists like 450k)
+2. Score each by **average trigram novelty** — trigrams you have typed less often score higher
+3. Scoring is **context-aware** — includes cross-word boundary trigrams based on the text so far
+4. Pick the **highest-scoring** candidate (random tie-break)
+5. **Prefer unique words** within a test — no repeats until every word in the list has appeared once
+
+Until you have trigram history, selection behaves like weighted random among unique words. As stats build up, under-practiced letter patterns show up more often in your passages.
 
 ## Run locally
 
