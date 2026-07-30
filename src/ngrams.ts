@@ -1,4 +1,130 @@
-import type { KeystrokeEvent } from "./state";
+import type { KeystrokeEvent, TestMode } from "./state";
+import {
+  getFlatTextOffsetBeforeWord,
+  getTargetWithCommitForWord,
+} from "./state";
+
+export type TargetPositionAttempt = {
+  testMs: number;
+  correct: boolean;
+};
+
+function isWordCommit(
+  key: string,
+  inputBefore: string,
+  targetWithCommit: string,
+): boolean {
+  return (
+    key === " " &&
+    inputBefore.length > 0 &&
+    targetWithCommit.endsWith(" ")
+  );
+}
+
+function buildFlatTargetText(
+  words: string[],
+  maxWordIndex: number,
+  mode: TestMode,
+): string {
+  let flat = "";
+
+  for (let i = 0; i <= maxWordIndex && i < words.length; i += 1) {
+    flat += getTargetWithCommitForWord(words, i, mode);
+  }
+
+  return flat;
+}
+
+export function replayTargetPositionAttempts(
+  words: string[],
+  mode: TestMode,
+  keystrokes: KeystrokeEvent[],
+): {
+  attempts: Map<number, TargetPositionAttempt>;
+  maxWordIndex: number;
+} {
+  const attempts = new Map<number, TargetPositionAttempt>();
+  let wordIndex = 0;
+  let input = "";
+  let maxWordIndex = 0;
+
+  for (const keystroke of keystrokes) {
+    const targetWithCommit = getTargetWithCommitForWord(words, wordIndex, mode);
+    maxWordIndex = Math.max(maxWordIndex, wordIndex);
+
+    if (isWordCommit(keystroke.key, input, targetWithCommit)) {
+      const charIndex = input.length;
+      const flatIndex = getFlatTextOffsetBeforeWord(wordIndex, words) + charIndex;
+      attempts.set(flatIndex, {
+        testMs: keystroke.testMs,
+        correct: keystroke.correct && !keystroke.isExtra,
+      });
+      input = "";
+      wordIndex += 1;
+      continue;
+    }
+
+    const charIndex = input.length;
+    if (charIndex < targetWithCommit.length) {
+      const flatIndex = getFlatTextOffsetBeforeWord(wordIndex, words) + charIndex;
+      attempts.set(flatIndex, {
+        testMs: keystroke.testMs,
+        correct: keystroke.correct && !keystroke.isExtra,
+      });
+    }
+
+    input += keystroke.key;
+  }
+
+  return { attempts, maxWordIndex };
+}
+
+export function getTargetTrigramDurationMs(
+  flatStart: number,
+  attempts: Map<number, TargetPositionAttempt>,
+): number | null {
+  const first = attempts.get(flatStart);
+  const middle = attempts.get(flatStart + 1);
+  const last = attempts.get(flatStart + 2);
+
+  if (!first || !middle || !last) return null;
+
+  if (!first.correct || !middle.correct || !last.correct) {
+    return MAX_NGRAM_DURATION_MS;
+  }
+
+  return capNgramDurationMs(last.testMs - first.testMs);
+}
+
+export function collectTargetTrigramDurations(
+  words: string[],
+  mode: TestMode,
+  keystrokes: KeystrokeEvent[],
+): Map<string, number[]> {
+  const { attempts, maxWordIndex } = replayTargetPositionAttempts(
+    words,
+    mode,
+    keystrokes,
+  );
+  const flat = buildFlatTargetText(words, maxWordIndex, mode);
+  const durations = new Map<string, number[]>();
+
+  for (let start = 0; start <= flat.length - 3; start += 1) {
+    const duration = getTargetTrigramDurationMs(start, attempts);
+    if (duration === null) continue;
+
+    const label = formatNgramLabel([
+      flat[start]!,
+      flat[start + 1]!,
+      flat[start + 2]!,
+    ]);
+    const existing = durations.get(label) ?? [];
+    existing.push(duration);
+    durations.set(label, existing);
+  }
+
+  return durations;
+}
 
 export type NgramStat = {
   ngram: string;
@@ -104,6 +230,10 @@ export function getBigramStats(keystrokes: KeystrokeEvent[]): NgramStat[] {
   return aggregateNgramStats(collectBigramDurations(keystrokes));
 }
 
-export function getTrigramStats(keystrokes: KeystrokeEvent[]): NgramStat[] {
-  return aggregateNgramStats(collectTrigramDurations(keystrokes));
+export function getTrigramStats(
+  words: string[],
+  mode: TestMode,
+  keystrokes: KeystrokeEvent[],
+): NgramStat[] {
+  return aggregateNgramStats(collectTargetTrigramDurations(words, mode, keystrokes));
 }

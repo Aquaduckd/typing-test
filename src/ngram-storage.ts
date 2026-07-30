@@ -1,8 +1,8 @@
 import {
   collectBigramDurations,
-  collectTrigramDurations,
+  collectTargetTrigramDurations,
 } from "./ngrams";
-import type { KeystrokeEvent } from "./state";
+import type { KeystrokeEvent, TestMode } from "./state";
 
 export type StoredNgramAggregate = {
   totalMs: number;
@@ -56,12 +56,16 @@ export function mergeDurationMap(
   }
 }
 
-export function recordKeystrokeNgrams(keystrokes: KeystrokeEvent[]): void {
+export function recordKeystrokeNgrams(
+  words: string[],
+  mode: TestMode,
+  keystrokes: KeystrokeEvent[],
+): void {
   if (keystrokes.length < 2) return;
 
   const stats = loadRawStats();
   mergeDurationMap(stats.bigrams, collectBigramDurations(keystrokes));
-  mergeDurationMap(stats.trigrams, collectTrigramDurations(keystrokes));
+  mergeDurationMap(stats.trigrams, collectTargetTrigramDurations(words, mode, keystrokes));
   saveRawStats(stats);
 }
 

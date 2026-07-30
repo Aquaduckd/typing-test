@@ -47,18 +47,29 @@ export function getCurrentWord(state: TestState): string {
 }
 
 /** Monkeytype compares input against textWithCommit (word + trailing space). */
-export function getTargetWithCommit(state: TestState, wordIndex?: number): string {
-  const index = wordIndex ?? state.activeWordIndex;
-  const word = state.words[index] ?? "";
+export function getTargetWithCommitForWord(
+  words: string[],
+  wordIndex: number,
+  mode: TestMode,
+): string {
+  const word = words[wordIndex] ?? "";
 
-  if (state.mode === "time") {
+  if (mode === "time") {
     return `${word} `;
   }
 
-  if (index >= state.words.length - 1) {
+  if (wordIndex >= words.length - 1) {
     return word;
   }
   return `${word} `;
+}
+
+export function getTargetWithCommit(state: TestState, wordIndex?: number): string {
+  return getTargetWithCommitForWord(
+    state.words,
+    wordIndex ?? state.activeWordIndex,
+    state.mode,
+  );
 }
 
 export function isTimedMode(state: TestState): boolean {

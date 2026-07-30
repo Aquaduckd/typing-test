@@ -77,7 +77,11 @@ function completeTest(): void {
   completeTestProgress();
 
   const resultData = buildTestResult(state);
-  recordKeystrokeNgrams(getResultKeystrokes(state));
+  recordKeystrokeNgrams(
+    state.words,
+    state.mode,
+    getResultKeystrokes(state),
+  );
   recordTestCompleted(
     activeTestWordList,
     resultData.wpm,

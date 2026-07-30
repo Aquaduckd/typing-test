@@ -1,4 +1,10 @@
-import { capNgramDurationMs, formatNgramLabel } from "./ngrams";
+import {
+  formatNgramLabel,
+  getTargetTrigramDurationMs,
+  replayTargetPositionAttempts,
+  type TargetPositionAttempt,
+} from "./ngrams";
+import { TEST_CONFIG } from "./config";
 import {
   getSlowTrigramSet,
   getSlowTrigramStarts,
@@ -82,21 +88,14 @@ export function setSlowTrigramTypedFlatLengthProvider(
   typedFlatLengthProvider = provider;
 }
 
-function getNonExtraKeystrokes(keystrokes: KeystrokeEvent[]): KeystrokeEvent[] {
-  return keystrokes.filter((keystroke) => !keystroke.isExtra);
-}
-
 function getTrigramLineStatus(
   globalFlatStart: number,
   flatText: string,
   localFlatStart: number,
-  keystrokes: KeystrokeEvent[],
+  attempts: Map<number, TargetPositionAttempt>,
   typedFlatLength: number,
 ): TrigramLineStatus {
   if (typedFlatLength <= globalFlatStart + 2) return "pending";
-
-  const sequence = getNonExtraKeystrokes(keystrokes);
-  if (sequence.length <= globalFlatStart + 2) return "pending";
 
   const trigram = formatNgramLabel([
     flatText[localFlatStart]!,
@@ -106,9 +105,8 @@ function getTrigramLineStatus(
   const meanMs = getStoredTrigramMeanMs(trigram);
   if (meanMs === null) return "pending";
 
-  const duration = capNgramDurationMs(
-    sequence[globalFlatStart + 2]!.testMs - sequence[globalFlatStart]!.testMs,
-  );
+  const duration = getTargetTrigramDurationMs(globalFlatStart, attempts);
+  if (duration === null) return "pending";
 
   return duration < meanMs ? "faster" : "slower";
 }
@@ -277,6 +275,11 @@ function renderSlowTrigramLines(allWords: string[]): void {
   const starts = getSlowTrigramStarts(flatText, slowTrigrams);
   const keystrokes = keystrokesProvider();
   const typedFlatLength = typedFlatLengthProvider();
+  const { attempts } = replayTargetPositionAttempts(
+    allWords,
+    TEST_CONFIG.mode,
+    keystrokes,
+  );
   const fragment = document.createDocumentFragment();
 
   for (const start of starts) {
@@ -287,7 +290,7 @@ function renderSlowTrigramLines(allWords: string[]): void {
       flatTextOffset + start,
       flatText,
       start,
-      keystrokes,
+      attempts,
       typedFlatLength,
     );
     const line = document.createElement("div");

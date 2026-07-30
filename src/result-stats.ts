@@ -252,7 +252,7 @@ export function buildTestResult(state: TestState): TestResult {
       errors: errorHistory,
     },
     bigrams: getBigramStats(resultKeystrokes),
-    trigrams: getTrigramStats(resultKeystrokes),
+    trigrams: getTrigramStats(state.words, state.mode, resultKeystrokes),
   };
 }
 
