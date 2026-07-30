@@ -5,6 +5,7 @@ import {
   clearInputValue,
   focusInput,
   getInputElement,
+  getInputValue,
 } from "./input-element";
 import {
   emulateInsertText,
@@ -29,20 +30,25 @@ import {
   resetLineScroll,
 } from "./line-scroll";
 import { renderWords, setActiveWordHighlight } from "./render";
-import { buildTestResult } from "./result-stats";
-import { hideResult, showResult } from "./result";
-import { calculateStats } from "./stats";
-import { createInitialState, type TestState } from "./state";
+import { recordKeystrokeNgrams } from "./ngram-storage";
+import { buildTestResult, getResultKeystrokes } from "./result-stats";
+import { refreshResultsView, setLastResult } from "./result";
+import { onSiteTabChange, setSiteTab, getSiteTab } from "./site-nav";
+import { refreshStatsView } from "./stats-page";
+import { createInitialState, getTypedTargetFlatLength, type TestState } from "./state";
 import {
-  getCountdownSeconds,
-  startTestTimer,
-  stopTestTimer,
-} from "./test-timer";
+  completeTestProgress,
+  resetTestProgress,
+  startTestProgress,
+} from "./test-progress";
+import { startTestTimer, stopTestTimer } from "./test-timer";
+import {
+  setSlowTrigramKeystrokesProvider,
+  setSlowTrigramTypedFlatLengthProvider,
+  setSlowTrigramWordsProvider,
+} from "./slow-trigram-lines";
 import { generateInitialWordBuffer } from "./words-generator";
 
-const wpmEl = queryRequired<HTMLElement>("#wpm");
-const accuracyEl = queryRequired<HTMLElement>("#accuracy");
-const timerEl = queryRequired<HTMLElement>("#timer");
 const statusEl = queryRequired<HTMLElement>("#status");
 const restartBtn = queryRequired<HTMLButtonElement>("#restart");
 const resultRestartBtn = queryRequired<HTMLButtonElement>("#result-restart");
@@ -51,35 +57,6 @@ const wordsWrapper = queryRequired<HTMLElement>("#words-wrapper");
 let state: TestState = createInitialState(generateInitialWordBuffer());
 
 registerCaretLineJumpHandler(handleCaretLineJump);
-
-function getElapsedMs(): number {
-  if (state.startedAt === null) return 0;
-  const elapsed = performance.now() - state.startedAt;
-  if (state.mode === "time") {
-    return Math.min(elapsed, state.timeLimitSeconds * 1000);
-  }
-  return elapsed;
-}
-
-function updateTimerDisplay(elapsedSeconds = 0): void {
-  timerEl.textContent = String(getCountdownSeconds(elapsedSeconds));
-}
-
-function updateLiveStats(): void {
-  if (state.startedAt === null) {
-    wpmEl.textContent = "0";
-    accuracyEl.textContent = "100";
-    return;
-  }
-
-  const stats = calculateStats(
-    state.correctChars,
-    state.keystrokes,
-    getElapsedMs(),
-  );
-  wpmEl.textContent = String(stats.wpm);
-  accuracyEl.textContent = String(stats.accuracy);
-}
 
 function setStatus(text: string): void {
   statusEl.textContent = text;
@@ -90,12 +67,15 @@ function completeTest(): void {
 
   finishTimedTest(state);
   stopTestTimer();
+  completeTestProgress();
 
   const resultData = buildTestResult(state);
+  recordKeystrokeNgrams(getResultKeystrokes(state));
+  setLastResult(resultData);
   setStatus("");
   stopBlinking();
   getInputElement().blur();
-  showResult(resultData);
+  setSiteTab("results");
 }
 
 function scheduleViewportLayout(): void {
@@ -114,7 +94,6 @@ function scheduleViewportLayout(): void {
 }
 
 function initTest(): void {
-  hideResult(true);
   stopTestTimer();
   state = createInitialState(generateInitialWordBuffer());
 
@@ -125,10 +104,7 @@ function initTest(): void {
   resetCaretPosition();
   hideCaret();
   startBlinking();
-
-  wpmEl.textContent = "0";
-  accuracyEl.textContent = "100";
-  updateTimerDisplay(0);
+  resetTestProgress();
   setStatus("Press any key to start");
 
   scheduleViewportLayout();
@@ -137,11 +113,8 @@ function initTest(): void {
 function handleInsertResult(result: ReturnType<typeof emulateInsertText>): void {
   if (result.started) {
     setStatus("Keep going…");
+    startTestProgress(state.timeLimitSeconds);
     startTestTimer({
-      onTick: (elapsedSeconds) => {
-        updateTimerDisplay(elapsedSeconds);
-        updateLiveStats();
-      },
       onFinish: () => {
         completeTest();
       },
@@ -150,10 +123,7 @@ function handleInsertResult(result: ReturnType<typeof emulateInsertText>): void 
 
   if (result.finished) {
     completeTest();
-    return;
   }
-
-  updateLiveStats();
 }
 
 function wireInput(): void {
@@ -174,7 +144,6 @@ function wireInput(): void {
     if (inputType === "deleteContentBackward" || inputType === "deleteWordBackward") {
       event.preventDefault();
       handleDelete(state, inputType as DeleteInputType);
-      updateLiveStats();
       return;
     }
 
@@ -197,13 +166,13 @@ function wireInput(): void {
 
     if (inputType === "deleteContentBackward" || inputType === "deleteWordBackward") {
       handleDelete(state, inputType as DeleteInputType);
-      updateLiveStats();
     }
   });
 }
 
 function restartTest(): void {
   initTest();
+  setSiteTab("test");
   focusInput();
 }
 
@@ -236,8 +205,31 @@ document.addEventListener("keydown", (event) => {
 
 wireCaretFocusHandlers(getInputElement);
 wireInput();
+setSlowTrigramWordsProvider(() => state.words);
+setSlowTrigramKeystrokesProvider(() => state.keystrokes);
+setSlowTrigramTypedFlatLengthProvider(() =>
+  getTypedTargetFlatLength(state, getInputValue()),
+);
+
+onSiteTabChange((tab) => {
+  if (tab === "test") {
+    if (state.finished) {
+      initTest();
+    }
+    focusInput();
+  }
+  if (tab === "results") {
+    refreshResultsView();
+  }
+  if (tab === "stats") {
+    refreshStatsView();
+  }
+});
+
 initTest();
 
 window.addEventListener("load", () => {
-  focusInput();
+  if (getSiteTab() === "test") {
+    focusInput();
+  }
 });

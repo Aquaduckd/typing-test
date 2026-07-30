@@ -2,6 +2,7 @@ import { animate, type JSAnimation } from "animejs";
 import { finalizeCaretAfterLineJump } from "./caret";
 import { getWordsContainer, getWordsViewport, getWordsWrapper } from "./words-dom";
 import { measureWordLayout } from "./render";
+import { refreshSlowTrigramLines } from "./slow-trigram-lines";
 
 const VISIBLE_LINES = 3;
 const LINE_JUMP_DURATION_MS = 125;
@@ -215,6 +216,7 @@ async function lineJump(currentTop: number, force = false): Promise<void> {
     currentTestLine += 1;
     updateWordsWrapperHeight();
     updateActiveWordMetrics(activeWordIndex);
+    refreshSlowTrigramLines();
   }
 }
 
@@ -276,12 +278,18 @@ export function wouldCauseLineWrap(
   nextChar: string,
   targetWord: string,
   commitsWord: boolean,
+  allWords: string[],
 ): boolean {
   if (commitsWord || nextChar === " ") return false;
   if (input.length < targetWord.length) return false;
 
   const pendingInput = input + nextChar;
-  const { top, height } = measureWordLayout(wordIndex, pendingInput, targetWord);
+  const { top, height } = measureWordLayout(
+    wordIndex,
+    pendingInput,
+    targetWord,
+    allWords,
+  );
 
   if (top > activeWordTop + 1) return true;
   if (height > activeWordHeight + 1) return true;

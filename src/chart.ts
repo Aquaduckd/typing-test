@@ -264,6 +264,10 @@ export function destroyResultChart(): void {
   }
 }
 
+export function resizeResultChart(): void {
+  chart?.resize();
+}
+
 export function setChartDatasetVisibility(
   label: "raw" | "burst" | "errors",
   visible: boolean,

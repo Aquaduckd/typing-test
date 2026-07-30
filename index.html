@@ -15,156 +15,420 @@
     class="min-h-screen bg-zinc-950 font-['Roboto_Mono',ui-monospace,monospace] text-zinc-300 antialiased selection:bg-amber-500/30"
   >
     <div class="mx-auto flex min-h-screen max-w-5xl flex-col px-6 py-12">
-      <header id="live-header" class="mb-10 flex items-end justify-between gap-4">
+      <header class="mb-10 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 class="text-sm font-medium uppercase tracking-[0.2em] text-zinc-500">
             Typing Test
           </h1>
           <p class="mt-1 text-xs text-zinc-600">monkeytype-style · click words to focus</p>
         </div>
-        <div class="flex gap-6 text-right text-sm tabular-nums">
-          <div>
-            <div class="text-xs uppercase tracking-wider text-zinc-600">Time</div>
-            <div id="timer" class="text-2xl text-zinc-200">15</div>
-          </div>
-          <div>
-            <div class="text-xs uppercase tracking-wider text-zinc-600">WPM</div>
-            <div id="wpm" class="text-2xl text-amber-400">0</div>
-          </div>
-          <div>
-            <div class="text-xs uppercase tracking-wider text-zinc-600">Accuracy</div>
-            <div id="accuracy" class="text-2xl text-zinc-200">100</div>
-          </div>
-        </div>
+        <nav class="flex gap-2 text-xs">
+          <button
+            id="site-tab-test"
+            type="button"
+            class="rounded border border-amber-500/60 px-3 py-1.5 text-amber-400 transition hover:border-amber-400"
+          >
+            test
+          </button>
+          <button
+            id="site-tab-results"
+            type="button"
+            class="rounded border border-zinc-700 px-3 py-1.5 text-zinc-500 transition hover:border-zinc-500 hover:text-zinc-300"
+          >
+            results
+          </button>
+          <button
+            id="site-tab-stats"
+            type="button"
+            class="rounded border border-zinc-700 px-3 py-1.5 text-zinc-500 transition hover:border-zinc-500 hover:text-zinc-300"
+          >
+            stats
+          </button>
+        </nav>
       </header>
 
-      <main class="flex flex-1 flex-col justify-center">
-        <div id="typing-test">
-          <div
-            id="words-wrapper"
-            class="cursor-text rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-8 text-2xl leading-none tracking-wide"
-          >
-            <div id="words-viewport" class="relative overflow-hidden">
-              <textarea
-                id="words-input"
-                class="pointer-events-none absolute z-[-1] m-0 block h-[1em] w-0 resize-none overflow-hidden border-0 p-0 opacity-0 outline-none"
-                autocomplete="off"
-                autocapitalize="off"
-                autocorrect="off"
-                spellcheck="false"
-              ></textarea>
-
-              <div
-                id="caret"
-                class="pointer-events-none absolute z-10 h-[1.2em] w-[0.1em] origin-top-left rounded-sm bg-amber-400"
-              ></div>
-
-              <div id="words" class="flex w-full flex-wrap content-start gap-x-[0.65em] gap-y-3 leading-none"></div>
-            </div>
-          </div>
-
-          <p id="status" class="mt-6 h-5 text-center text-sm text-zinc-600">
-            Press any key to start
-          </p>
-        </div>
-
-        <section
-          id="result"
-          class="hidden opacity-0 flex-col gap-8 transition-opacity duration-200"
-          tabindex="-1"
-        >
-          <div class="grid gap-8 lg:grid-cols-[auto_1fr] lg:items-start">
-            <div class="flex flex-col gap-6 tabular-nums">
-              <div>
-                <div class="text-xs uppercase tracking-wider text-zinc-600">wpm</div>
-                <div id="result-wpm" class="text-5xl text-amber-400">-</div>
-              </div>
-              <div>
-                <div class="text-xs uppercase tracking-wider text-zinc-600">acc</div>
-                <div id="result-acc" class="text-5xl text-zinc-100">-</div>
-              </div>
+      <main class="flex flex-1 flex-col">
+        <section id="site-panel-test" class="flex flex-1 flex-col justify-center">
+          <div id="typing-test">
+            <div
+              id="test-progress-track"
+              class="mb-3 h-1 overflow-hidden rounded-full bg-zinc-800/80"
+            >
+              <div id="test-progress-bar" class="h-full w-0 rounded-full bg-amber-400/90"></div>
             </div>
 
-            <div class="min-h-56 rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-4">
-              <div class="mb-3 flex items-center justify-between gap-3">
-                <div class="text-xs uppercase tracking-wider text-zinc-600">performance</div>
-                <div class="flex gap-2 text-xs">
-                  <button
-                    id="toggle-burst"
-                    type="button"
-                    class="rounded border border-amber-500/60 px-2 py-1 text-amber-400 transition hover:border-amber-400"
-                  >
-                    burst
-                  </button>
-                  <button
-                    id="toggle-raw"
-                    type="button"
-                    class="rounded border border-amber-500/60 px-2 py-1 text-amber-400 transition hover:border-amber-400"
-                  >
-                    raw
-                  </button>
-                  <button
-                    id="toggle-errors"
-                    type="button"
-                    class="rounded border border-amber-500/60 px-2 py-1 text-amber-400 transition hover:border-amber-400"
-                  >
-                    errors
-                  </button>
+            <div
+              id="words-wrapper"
+              class="cursor-text rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-8 text-2xl leading-none tracking-wide"
+            >
+              <div id="words-viewport" class="relative overflow-hidden">
+                <textarea
+                  id="words-input"
+                  class="pointer-events-none absolute z-[-1] m-0 block h-[1em] w-0 resize-none overflow-hidden border-0 p-0 opacity-0 outline-none"
+                  autocomplete="off"
+                  autocapitalize="off"
+                  autocorrect="off"
+                  spellcheck="false"
+                ></textarea>
+
+                <div
+                  id="caret"
+                  class="pointer-events-none absolute z-10 h-[1.2em] w-[0.1em] origin-top-left rounded-sm bg-amber-400"
+                ></div>
+
+                <div
+                  id="words"
+                  class="relative flex w-full flex-wrap content-start gap-x-[0.65em] gap-y-3 leading-none"
+                >
+                  <div
+                    id="slow-trigram-lines"
+                    class="pointer-events-none absolute inset-0 z-[5]"
+                  ></div>
                 </div>
               </div>
-              <div class="h-48">
-                <canvas id="wpm-chart"></canvas>
-              </div>
             </div>
+
+            <p id="status" class="mt-6 h-5 text-center text-sm text-zinc-600">
+              Press any key to start
+            </p>
           </div>
 
-          <div
-            class="flex flex-wrap items-start justify-between gap-y-6 rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6"
-          >
-            <div>
-              <div class="text-xs uppercase tracking-wider text-zinc-600">raw</div>
-              <div id="result-raw" class="mt-1 text-lg text-zinc-200">-</div>
-            </div>
-            <div>
-              <div
-                class="text-xs uppercase tracking-wider text-zinc-600"
-                title="correct / incorrect / extra / missed"
-              >
-                characters
-              </div>
-              <div id="result-chars" class="mt-1 text-lg text-zinc-200">-</div>
-            </div>
-            <div>
-              <div class="text-xs uppercase tracking-wider text-zinc-600">consistency</div>
-              <div id="result-consistency" class="mt-1 text-lg text-zinc-200">-</div>
-            </div>
-            <div>
-              <div class="text-xs uppercase tracking-wider text-zinc-600">time</div>
-              <div id="result-time" class="mt-1 text-lg text-zinc-200">-</div>
-            </div>
-          </div>
-
-          <div class="flex justify-end">
+          <footer id="test-footer" class="mt-10 flex justify-end text-xs text-zinc-600">
             <button
-              id="result-restart"
+              id="restart"
               type="button"
-              class="rounded-md border border-zinc-700 px-4 py-2 text-sm text-zinc-400 transition hover:border-zinc-500 hover:text-zinc-200"
+              class="rounded-md border border-zinc-700 px-3 py-1.5 text-zinc-400 transition hover:border-zinc-500 hover:text-zinc-200"
             >
-              Next test
+              Restart
             </button>
+          </footer>
+        </section>
+
+        <section id="site-panel-results" class="hidden flex-col gap-6">
+          <div
+            id="results-empty"
+            class="flex flex-1 flex-col items-center justify-center rounded-xl border border-zinc-800/80 bg-zinc-900/40 px-6 py-24 text-center"
+          >
+            <p class="text-sm text-zinc-500">No results yet.</p>
+            <p class="mt-2 text-xs text-zinc-600">Complete a test to see your last result here.</p>
+          </div>
+
+          <div id="result" class="hidden flex-col gap-6 px-1 py-2 sm:px-2">
+            <div class="flex gap-2 px-1 text-xs">
+              <button
+                id="result-tab-chart"
+                type="button"
+                class="rounded border border-amber-500/60 px-2 py-1 text-amber-400 transition hover:border-amber-400"
+              >
+                summary
+              </button>
+              <button
+                id="result-tab-bigrams"
+                type="button"
+                class="rounded border border-zinc-700 px-2 py-1 text-zinc-500 transition hover:border-zinc-500 hover:text-zinc-300"
+              >
+                bigrams
+              </button>
+              <button
+                id="result-tab-trigrams"
+                type="button"
+                class="rounded border border-zinc-700 px-2 py-1 text-zinc-500 transition hover:border-zinc-500 hover:text-zinc-300"
+              >
+                trigrams
+              </button>
+            </div>
+
+            <div id="result-summary-panel" class="flex flex-col gap-8">
+              <div class="grid gap-8 lg:grid-cols-[auto_1fr] lg:items-start">
+                <div class="flex flex-col gap-6 tabular-nums">
+                  <div>
+                    <div class="text-xs uppercase tracking-wider text-zinc-600">wpm</div>
+                    <div id="result-wpm" class="text-5xl text-amber-400">-</div>
+                  </div>
+                  <div>
+                    <div class="text-xs uppercase tracking-wider text-zinc-600">acc</div>
+                    <div id="result-acc" class="text-5xl text-zinc-100">-</div>
+                  </div>
+                </div>
+
+                <div class="min-h-56 rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-4">
+                  <div class="mb-3 flex items-center justify-end gap-3">
+                    <div id="chart-toggles" class="flex gap-2 text-xs">
+                      <button
+                        id="toggle-burst"
+                        type="button"
+                        class="rounded border border-amber-500/60 px-2 py-1 text-amber-400 transition hover:border-amber-400"
+                      >
+                        burst
+                      </button>
+                      <button
+                        id="toggle-raw"
+                        type="button"
+                        class="rounded border border-amber-500/60 px-2 py-1 text-amber-400 transition hover:border-amber-400"
+                      >
+                        raw
+                      </button>
+                      <button
+                        id="toggle-errors"
+                        type="button"
+                        class="rounded border border-amber-500/60 px-2 py-1 text-amber-400 transition hover:border-amber-400"
+                      >
+                        errors
+                      </button>
+                    </div>
+                  </div>
+                  <div class="h-48">
+                    <canvas id="wpm-chart"></canvas>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="flex flex-wrap items-start justify-between gap-y-6 rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6"
+              >
+                <div>
+                  <div class="text-xs uppercase tracking-wider text-zinc-600">raw</div>
+                  <div id="result-raw" class="mt-1 text-lg text-zinc-200">-</div>
+                </div>
+                <div>
+                  <div
+                    class="text-xs uppercase tracking-wider text-zinc-600"
+                    title="correct / incorrect / extra / missed"
+                  >
+                    characters
+                  </div>
+                  <div id="result-chars" class="mt-1 text-lg text-zinc-200">-</div>
+                </div>
+                <div>
+                  <div class="text-xs uppercase tracking-wider text-zinc-600">consistency</div>
+                  <div id="result-consistency" class="mt-1 text-lg text-zinc-200">-</div>
+                </div>
+                <div>
+                  <div class="text-xs uppercase tracking-wider text-zinc-600">time</div>
+                  <div id="result-time" class="mt-1 text-lg text-zinc-200">-</div>
+                </div>
+              </div>
+            </div>
+
+            <div id="result-bigrams-panel" class="hidden flex-col gap-8">
+              <div class="min-h-96 rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6">
+                <div class="max-h-[28rem] overflow-y-auto px-1">
+                  <table class="w-full text-left text-sm tabular-nums">
+                    <thead class="sticky top-0 z-10 bg-zinc-900/95 text-xs uppercase tracking-wider">
+                      <tr>
+                        <th class="px-3 py-3 align-middle font-medium">
+                          <button
+                            id="bigram-sort-name"
+                            type="button"
+                            class="inline-flex cursor-pointer items-center p-0 text-inherit transition hover:text-zinc-300"
+                          >
+                            bigram
+                          </button>
+                        </th>
+                        <th class="px-3 py-3 align-middle font-medium">
+                          <button
+                            id="bigram-sort-ms"
+                            type="button"
+                            class="inline-flex cursor-pointer items-center p-0 text-inherit transition hover:text-zinc-300"
+                          >
+                            avg ms ↓
+                          </button>
+                        </th>
+                        <th class="px-3 py-3 align-middle font-medium">
+                          <button
+                            id="bigram-sort-count"
+                            type="button"
+                            class="inline-flex cursor-pointer items-center p-0 text-inherit transition hover:text-zinc-300"
+                          >
+                            count
+                          </button>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody id="result-bigrams-body" class="text-zinc-300"></tbody>
+                  </table>
+                  <p id="result-bigrams-empty" class="hidden px-3 py-4 text-sm text-zinc-500">
+                    Not enough keystrokes for bigram data.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div id="result-trigrams-panel" class="hidden flex-col gap-8">
+              <div class="min-h-96 rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6">
+                <div class="max-h-[28rem] overflow-y-auto px-1">
+                  <table class="w-full text-left text-sm tabular-nums">
+                    <thead class="sticky top-0 z-10 bg-zinc-900/95 text-xs uppercase tracking-wider">
+                      <tr>
+                        <th class="px-3 py-3 align-middle font-medium">
+                          <button
+                            id="trigram-sort-name"
+                            type="button"
+                            class="inline-flex cursor-pointer items-center p-0 text-inherit transition hover:text-zinc-300"
+                          >
+                            trigram
+                          </button>
+                        </th>
+                        <th class="px-3 py-3 align-middle font-medium">
+                          <button
+                            id="trigram-sort-ms"
+                            type="button"
+                            class="inline-flex cursor-pointer items-center p-0 text-inherit transition hover:text-zinc-300"
+                          >
+                            avg ms ↓
+                          </button>
+                        </th>
+                        <th class="px-3 py-3 align-middle font-medium">
+                          <button
+                            id="trigram-sort-count"
+                            type="button"
+                            class="inline-flex cursor-pointer items-center p-0 text-inherit transition hover:text-zinc-300"
+                          >
+                            count
+                          </button>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody id="result-trigrams-body" class="text-zinc-300"></tbody>
+                  </table>
+                  <p id="result-trigrams-empty" class="hidden px-3 py-4 text-sm text-zinc-500">
+                    Not enough keystrokes for trigram data.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-end px-1">
+              <button
+                id="result-restart"
+                type="button"
+                class="rounded-md border border-zinc-700 px-4 py-2 text-sm text-zinc-400 transition hover:border-zinc-500 hover:text-zinc-200"
+              >
+                Next test
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section id="site-panel-stats" class="hidden flex-col gap-6">
+          <div
+            id="stats-empty"
+            class="flex flex-1 flex-col items-center justify-center rounded-xl border border-zinc-800/80 bg-zinc-900/40 px-6 py-24 text-center"
+          >
+            <p class="text-sm text-zinc-500">No stats yet.</p>
+            <p class="mt-2 text-xs text-zinc-600">
+              Complete tests to build lifetime bigram and trigram averages.
+            </p>
+          </div>
+
+          <div id="stats-content" class="hidden flex-col gap-6 px-1 py-2 sm:px-2">
+            <div class="flex gap-2 px-1 text-xs">
+              <button
+                id="stats-tab-bigrams"
+                type="button"
+                class="rounded border border-zinc-700 px-2 py-1 text-zinc-500 transition hover:border-zinc-500 hover:text-zinc-300"
+              >
+                bigrams
+              </button>
+              <button
+                id="stats-tab-trigrams"
+                type="button"
+                class="rounded border border-amber-500/60 px-2 py-1 text-amber-400 transition hover:border-amber-400"
+              >
+                trigrams
+              </button>
+            </div>
+
+            <div id="stats-bigrams-panel" class="hidden flex-col gap-8">
+              <div class="min-h-96 rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6">
+                <div class="max-h-[28rem] overflow-y-auto px-1">
+                  <table class="w-full text-left text-sm tabular-nums">
+                    <thead class="sticky top-0 z-10 bg-zinc-900/95 text-xs uppercase tracking-wider">
+                      <tr>
+                        <th class="px-3 py-3 align-middle font-medium">
+                          <button
+                            id="stats-bigram-sort-name"
+                            type="button"
+                            class="inline-flex cursor-pointer items-center p-0 text-inherit transition hover:text-zinc-300"
+                          >
+                            bigram
+                          </button>
+                        </th>
+                        <th class="px-3 py-3 align-middle font-medium">
+                          <button
+                            id="stats-bigram-sort-ms"
+                            type="button"
+                            class="inline-flex cursor-pointer items-center p-0 text-inherit transition hover:text-zinc-300"
+                          >
+                            avg ms ↓
+                          </button>
+                        </th>
+                        <th class="px-3 py-3 align-middle font-medium">
+                          <button
+                            id="stats-bigram-sort-count"
+                            type="button"
+                            class="inline-flex cursor-pointer items-center p-0 text-inherit transition hover:text-zinc-300"
+                          >
+                            count
+                          </button>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody id="stats-bigrams-body" class="text-zinc-300"></tbody>
+                  </table>
+                  <p id="stats-bigrams-empty" class="hidden px-3 py-4 text-sm text-zinc-500">
+                    Not enough keystrokes for bigram data.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div id="stats-trigrams-panel" class="flex flex-col gap-8">
+              <div class="min-h-96 rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6">
+                <div class="max-h-[28rem] overflow-y-auto px-1">
+                  <table class="w-full text-left text-sm tabular-nums">
+                    <thead class="sticky top-0 z-10 bg-zinc-900/95 text-xs uppercase tracking-wider">
+                      <tr>
+                        <th class="px-3 py-3 align-middle font-medium">
+                          <button
+                            id="stats-trigram-sort-name"
+                            type="button"
+                            class="inline-flex cursor-pointer items-center p-0 text-inherit transition hover:text-zinc-300"
+                          >
+                            trigram
+                          </button>
+                        </th>
+                        <th class="px-3 py-3 align-middle font-medium">
+                          <button
+                            id="stats-trigram-sort-ms"
+                            type="button"
+                            class="inline-flex cursor-pointer items-center p-0 text-inherit transition hover:text-zinc-300"
+                          >
+                            avg ms ↓
+                          </button>
+                        </th>
+                        <th class="px-3 py-3 align-middle font-medium">
+                          <button
+                            id="stats-trigram-sort-count"
+                            type="button"
+                            class="inline-flex cursor-pointer items-center p-0 text-inherit transition hover:text-zinc-300"
+                          >
+                            count
+                          </button>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody id="stats-trigrams-body" class="text-zinc-300"></tbody>
+                  </table>
+                  <p id="stats-trigrams-empty" class="hidden px-3 py-4 text-sm text-zinc-500">
+                    Not enough keystrokes for trigram data.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       </main>
-
-      <footer id="test-footer" class="mt-10 flex justify-end text-xs text-zinc-600">
-        <button
-          id="restart"
-          type="button"
-          class="rounded-md border border-zinc-700 px-3 py-1.5 text-zinc-400 transition hover:border-zinc-500 hover:text-zinc-200"
-        >
-          Restart
-        </button>
-      </footer>
     </div>
 
     <script type="module" src="/src/main.ts"></script>

@@ -1,3 +1,4 @@
+import { scheduleSlowTrigramLines } from "./slow-trigram-lines";
 import { requestDebouncedAnimationFrame } from "./utils/debounced-animation-frame";
 import { getWordsContainer } from "./words-dom";
 
@@ -17,6 +18,10 @@ function createLetterElement(char: string, className: string): HTMLElement {
   return letter;
 }
 
+function queueSlowTrigramLines(allWords: string[]): void {
+  scheduleSlowTrigramLines(allWords);
+}
+
 export function buildWordElement(word: string, wordIndex: number): HTMLElement {
   const wordEl = document.createElement("div");
   wordEl.className = "word inline-flex";
@@ -29,26 +34,45 @@ export function buildWordElement(word: string, wordIndex: number): HTMLElement {
   return wordEl;
 }
 
-export function appendWordsToDom(words: string[], startIndex: number): void {
+export function appendWordsToDom(
+  allWords: string[],
+  newWords: string[],
+  startIndex: number,
+): void {
   const container = getWordsContainer();
-  words.forEach((word, offset) => {
-    container.appendChild(buildWordElement(word, startIndex + offset));
+  newWords.forEach((word, offset) => {
+    const wordIndex = startIndex + offset;
+    container.appendChild(buildWordElement(word, wordIndex));
   });
+
+  queueSlowTrigramLines(allWords);
 }
 
 export function renderWords(words: string[]): void {
   const container = getWordsContainer();
-  container.replaceChildren();
+  container.querySelectorAll(".word").forEach((word) => word.remove());
 
   words.forEach((word, index) => {
-    container.appendChild(buildWordElement(word, index));
+    const wordEl = document.createElement("div");
+    wordEl.className = "word inline-flex";
+    wordEl.dataset.wordIndex = String(index);
+
+    for (const char of word) {
+      wordEl.appendChild(createLetterElement(char, LETTER_DEFAULT));
+    }
+
+    container.appendChild(wordEl);
   });
+
+  queueSlowTrigramLines(words);
 }
 
 function renderWordLetters(
   wordIndex: number,
   input: string,
   targetWord: string,
+  allWords: string[],
+  options?: { skipSlowLines?: boolean },
 ): void {
   const container = getWordsContainer();
   const wordEl = container.querySelector<HTMLElement>(
@@ -58,7 +82,7 @@ function renderWordLetters(
 
   const fragment = document.createDocumentFragment();
 
-  for (let i = 0; i < input.length; i++) {
+  for (let i = 0; i < input.length; i += 1) {
     const typed = input[i] ?? "";
     const expected = targetWord[i];
     let className = LETTER_INCORRECT;
@@ -72,19 +96,23 @@ function renderWordLetters(
     fragment.appendChild(createLetterElement(typed, className));
   }
 
-  for (let i = input.length; i < targetWord.length; i++) {
+  for (let i = input.length; i < targetWord.length; i += 1) {
     const char = targetWord[i] ?? "";
     fragment.appendChild(createLetterElement(char, LETTER_DEFAULT));
   }
 
   wordEl.replaceChildren(fragment);
+
+  if (!options?.skipSlowLines) {
+    queueSlowTrigramLines(allWords);
+  }
 }
 
-/** Synchronous layout probe for line-wrap prevention. */
 export function measureWordLayout(
   wordIndex: number,
   input: string,
   targetWord: string,
+  allWords: string[],
 ): { top: number; height: number } {
   const container = getWordsContainer();
   const wordEl = container.querySelector<HTMLElement>(
@@ -95,7 +123,9 @@ export function measureWordLayout(
   }
 
   const saved = wordEl.innerHTML;
-  renderWordLetters(wordIndex, input, targetWord);
+  renderWordLetters(wordIndex, input, targetWord, allWords, {
+    skipSlowLines: true,
+  });
   const { offsetTop: top, offsetHeight: height } = wordEl;
   wordEl.innerHTML = saved;
   return { top, height };
@@ -106,13 +136,14 @@ export function updateActiveWord(
   wordIndex: number,
   input: string,
   targetWord: string,
+  allWords: string[],
 ): void {
   pendingWordData.set(wordIndex, input);
   requestDebouncedAnimationFrame(
     `test-ui.updateWordLetters.${wordIndex}`,
     () => {
       pendingWordData.delete(wordIndex);
-      renderWordLetters(wordIndex, input, targetWord);
+      renderWordLetters(wordIndex, input, targetWord, allWords);
     },
   );
 }
@@ -122,6 +153,7 @@ export function markWordComplete(
   input: string,
   targetWord: string,
   correct: boolean,
+  allWords: string[],
 ): void {
   pendingWordData.delete(wordIndex);
 
@@ -138,10 +170,11 @@ export function markWordComplete(
       fragment.appendChild(createLetterElement(char, LETTER_CORRECT));
     }
     wordEl.replaceChildren(fragment);
+    queueSlowTrigramLines(allWords);
     return;
   }
 
-  renderWordLetters(wordIndex, input.trimEnd(), targetWord);
+  renderWordLetters(wordIndex, input.trimEnd(), targetWord, allWords);
   wordEl.classList.add("opacity-80");
 }
 
@@ -149,6 +182,7 @@ export function unmarkWordComplete(
   wordIndex: number,
   input: string,
   targetWord: string,
+  allWords: string[],
 ): void {
   pendingWordData.delete(wordIndex);
 
@@ -159,7 +193,7 @@ export function unmarkWordComplete(
   if (!wordEl) return;
 
   wordEl.className = "word inline-flex";
-  renderWordLetters(wordIndex, input, targetWord);
+  renderWordLetters(wordIndex, input, targetWord, allWords);
 }
 
 export function setActiveWordHighlight(wordIndex: number): void {

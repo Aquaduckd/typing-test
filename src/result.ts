@@ -1,9 +1,11 @@
 import {
   destroyResultChart,
+  resizeResultChart,
   setChartDatasetVisibility,
   updateResultChart,
 } from "./chart";
 import { queryRequired } from "./dom";
+import { createNgramTable } from "./ngram-table";
 import {
   formatAccuracy,
   formatPercentage,
@@ -12,10 +14,8 @@ import {
   type TestResult,
 } from "./result-stats";
 
+const resultsEmptyEl = queryRequired<HTMLElement>("#results-empty");
 const resultEl = queryRequired<HTMLElement>("#result");
-const typingTestEl = queryRequired<HTMLElement>("#typing-test");
-const liveHeaderEl = queryRequired<HTMLElement>("#live-header");
-const footerEl = queryRequired<HTMLElement>("#test-footer");
 
 const wpmEl = queryRequired<HTMLElement>("#result-wpm");
 const accEl = queryRequired<HTMLElement>("#result-acc");
@@ -25,19 +25,96 @@ const consistencyEl = queryRequired<HTMLElement>("#result-consistency");
 const timeEl = queryRequired<HTMLElement>("#result-time");
 const chartCanvas = queryRequired<HTMLCanvasElement>("#wpm-chart");
 
+const tabSummaryBtn = queryRequired<HTMLButtonElement>("#result-tab-chart");
+const tabBigramsBtn = queryRequired<HTMLButtonElement>("#result-tab-bigrams");
+const tabTrigramsBtn = queryRequired<HTMLButtonElement>("#result-tab-trigrams");
+const summaryPanelEl = queryRequired<HTMLElement>("#result-summary-panel");
+const bigramsPanelEl = queryRequired<HTMLElement>("#result-bigrams-panel");
+const trigramsPanelEl = queryRequired<HTMLElement>("#result-trigrams-panel");
+
 const toggleBurstBtn = queryRequired<HTMLButtonElement>("#toggle-burst");
 const toggleRawBtn = queryRequired<HTMLButtonElement>("#toggle-raw");
 const toggleErrorsBtn = queryRequired<HTMLButtonElement>("#toggle-errors");
 
+type ResultTab = "summary" | "bigrams" | "trigrams";
+
+let lastResult: TestResult | null = null;
+let activeTab: ResultTab = "summary";
 let burstVisible = true;
 let rawVisible = true;
 let errorsVisible = true;
+
+const bigramTable = createNgramTable({
+  bodyEl: queryRequired<HTMLElement>("#result-bigrams-body"),
+  emptyEl: queryRequired<HTMLElement>("#result-bigrams-empty"),
+  sortHeaders: [
+    {
+      button: queryRequired<HTMLButtonElement>("#bigram-sort-name"),
+      key: "ngram",
+      label: "bigram",
+    },
+    {
+      button: queryRequired<HTMLButtonElement>("#bigram-sort-ms"),
+      key: "meanMs",
+      label: "avg ms",
+    },
+    {
+      button: queryRequired<HTMLButtonElement>("#bigram-sort-count"),
+      key: "count",
+      label: "count",
+    },
+  ],
+});
+
+const trigramTable = createNgramTable({
+  bodyEl: queryRequired<HTMLElement>("#result-trigrams-body"),
+  emptyEl: queryRequired<HTMLElement>("#result-trigrams-empty"),
+  sortHeaders: [
+    {
+      button: queryRequired<HTMLButtonElement>("#trigram-sort-name"),
+      key: "ngram",
+      label: "trigram",
+    },
+    {
+      button: queryRequired<HTMLButtonElement>("#trigram-sort-ms"),
+      key: "meanMs",
+      label: "avg ms",
+    },
+    {
+      button: queryRequired<HTMLButtonElement>("#trigram-sort-count"),
+      key: "count",
+      label: "count",
+    },
+  ],
+});
 
 function setToggleState(button: HTMLButtonElement, active: boolean): void {
   button.classList.toggle("border-amber-500/60", active);
   button.classList.toggle("text-amber-400", active);
   button.classList.toggle("border-zinc-700", !active);
   button.classList.toggle("text-zinc-500", !active);
+}
+
+function setResultTabState(tab: ResultTab): void {
+  activeTab = tab;
+
+  setToggleState(tabSummaryBtn, tab === "summary");
+  setToggleState(tabBigramsBtn, tab === "bigrams");
+  setToggleState(tabTrigramsBtn, tab === "trigrams");
+
+  summaryPanelEl.classList.toggle("hidden", tab !== "summary");
+  summaryPanelEl.classList.toggle("flex", tab === "summary");
+  bigramsPanelEl.classList.toggle("hidden", tab !== "bigrams");
+  bigramsPanelEl.classList.toggle("flex", tab === "bigrams");
+  trigramsPanelEl.classList.toggle("hidden", tab !== "trigrams");
+  trigramsPanelEl.classList.toggle("flex", tab === "trigrams");
+}
+
+function updateResultsVisibility(): void {
+  const hasResult = lastResult !== null;
+  resultsEmptyEl.classList.toggle("hidden", hasResult);
+  resultEl.classList.toggle("hidden", !hasResult);
+  resultEl.classList.toggle("flex", hasResult);
 }
 
 function populateResult(result: TestResult): void {
@@ -55,49 +132,52 @@ function populateResult(result: TestResult): void {
   setToggleState(toggleBurstBtn, burstVisible);
   setToggleState(toggleRawBtn, rawVisible);
   setToggleState(toggleErrorsBtn, errorsVisible);
+
+  bigramTable.resetRows(result.bigrams);
+  trigramTable.resetRows(result.trigrams);
+  setResultTabState(activeTab);
 }
 
-export function showResult(result: TestResult): void {
+export function setLastResult(result: TestResult): void {
+  lastResult = result;
   populateResult(result);
+  updateResultsVisibility();
+}
 
-  liveHeaderEl.classList.add("hidden");
-  typingTestEl.classList.add("hidden");
-  footerEl.classList.add("hidden");
-  resultEl.classList.remove("hidden");
-  resultEl.classList.add("flex");
+export function refreshResultsView(): void {
+  if (!lastResult) {
+    updateResultsVisibility();
+    return;
+  }
 
+  populateResult(lastResult);
+  updateResultsVisibility();
   requestAnimationFrame(() => {
-    resultEl.classList.remove("opacity-0");
-    resultEl.classList.add("opacity-100");
+    resizeResultChart();
   });
 }
 
-export function hideResult(immediate = false): void {
-  if (resultEl.classList.contains("hidden")) {
-    destroyResultChart();
-    return;
-  }
-
-  const finish = (): void => {
-    resultEl.classList.add("hidden");
-    resultEl.classList.remove("flex", "opacity-100");
-    resultEl.classList.add("opacity-0");
-    liveHeaderEl.classList.remove("hidden");
-    typingTestEl.classList.remove("hidden");
-    footerEl.classList.remove("hidden");
-    destroyResultChart();
-  };
-
-  if (immediate) {
-    finish();
-    return;
-  }
-
-  resultEl.classList.remove("opacity-100");
-  resultEl.classList.add("opacity-0");
-
-  window.setTimeout(finish, 200);
+export function clearResultsView(): void {
+  lastResult = null;
+  destroyResultChart();
+  setResultTabState("summary");
+  bigramTable.resetRows([]);
+  trigramTable.resetRows([]);
+  updateResultsVisibility();
 }
+
+tabSummaryBtn.addEventListener("click", () => {
+  setResultTabState("summary");
+  requestAnimationFrame(resizeResultChart);
+});
+
+tabBigramsBtn.addEventListener("click", () => {
+  setResultTabState("bigrams");
+});
+
+tabTrigramsBtn.addEventListener("click", () => {
+  setResultTabState("trigrams");
+});
 
 toggleBurstBtn.addEventListener("click", () => {
   burstVisible = !burstVisible;

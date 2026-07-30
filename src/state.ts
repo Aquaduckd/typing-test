@@ -3,6 +3,7 @@ import { TEST_CONFIG } from "./config";
 export type TestMode = typeof TEST_CONFIG.mode;
 
 export type KeystrokeEvent = {
+  key: string;
   testMs: number;
   correct: boolean;
   isExtra: boolean;
@@ -77,4 +78,40 @@ export function shouldAppendWords(state: TestState): boolean {
 
 export function isLastWord(state: TestState): boolean {
   return state.activeWordIndex >= state.words.length - 1;
+}
+
+/** Keystroke index where the active word's input begins (after prior commit spaces). */
+export function getKeystrokeIndexAtStartOfActiveWord(state: TestState): number {
+  let index = 0;
+
+  for (const completed of state.completedWords) {
+    index += completed.typed.length + 1;
+  }
+
+  return index;
+}
+
+/** Target-text flat length typed so far (committed words + spaces + current input). */
+export function getTypedTargetFlatLength(state: TestState, input: string): number {
+  let length = 0;
+
+  for (const completed of state.completedWords) {
+    length += completed.typed.length + 1;
+  }
+
+  return length + input.length;
+}
+
+/** Flat-text index where `words[wordIndex]` begins (each prior word adds length + 1 space). */
+export function getFlatTextOffsetBeforeWord(
+  wordIndex: number,
+  words: string[],
+): number {
+  let offset = 0;
+
+  for (let i = 0; i < wordIndex; i++) {
+    offset += words[i]!.length + 1;
+  }
+
+  return offset;
 }

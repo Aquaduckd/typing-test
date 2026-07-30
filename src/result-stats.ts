@@ -1,9 +1,12 @@
+import { getBigramStats, getTrigramStats, type NgramStat } from "./ngrams";
 import {
   calculateAccuracy,
   calculateWpm,
   roundTo2,
 } from "./stats";
 import type { KeystrokeEvent, TestState } from "./state";
+
+export type { NgramStat };
 
 function getTestDurationMs(state: TestState): number {
   if (state.mode === "time") {
@@ -30,6 +33,8 @@ export type TestResult = {
     burst: number[];
     errors: number[];
   };
+  bigrams: NgramStat[];
+  trigrams: NgramStat[];
 };
 
 function mean(values: number[]): number {
@@ -52,6 +57,10 @@ function kogasa(cov: number): number {
 
 function getKeystrokesForResult(state: TestState, durationMs: number): KeystrokeEvent[] {
   return state.keystrokes.filter((keystroke) => keystroke.testMs <= durationMs);
+}
+
+export function getResultKeystrokes(state: TestState): KeystrokeEvent[] {
+  return getKeystrokesForResult(state, getTestDurationMs(state));
 }
 
 function getCharCounts(state: TestState, durationMs: number): {
@@ -240,6 +249,8 @@ export function buildTestResult(state: TestState): TestResult {
       burst,
       errors: errorHistory,
     },
+    bigrams: getBigramStats(resultKeystrokes),
+    trigrams: getTrigramStats(resultKeystrokes),
   };
 }
 

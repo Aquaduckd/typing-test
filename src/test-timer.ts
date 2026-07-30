@@ -1,7 +1,7 @@
 import { TEST_CONFIG } from "./config";
 
 type TimerCallbacks = {
-  onTick: (elapsedSeconds: number) => void;
+  onTick?: (elapsedSeconds: number) => void;
   onFinish: () => void;
 };
 
@@ -13,11 +13,11 @@ export function startTestTimer(cbs: TimerCallbacks): void {
   callbacks = cbs;
 
   let elapsedSeconds = 0;
-  callbacks.onTick(elapsedSeconds);
+  callbacks.onTick?.(elapsedSeconds);
 
   intervalId = window.setInterval(() => {
     elapsedSeconds += 1;
-    callbacks?.onTick(elapsedSeconds);
+    callbacks?.onTick?.(elapsedSeconds);
 
     if (elapsedSeconds >= TEST_CONFIG.timeLimitSeconds) {
       const onFinish = callbacks?.onFinish;

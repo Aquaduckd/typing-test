@@ -15,6 +15,7 @@ import {
 import {
   appendWords,
   getCurrentWord,
+  getKeystrokeIndexAtStartOfActiveWord,
   getTargetWithCommit,
   isLastWord,
   isTimedMode,
@@ -55,7 +56,7 @@ function ensureWordBuffer(state: TestState): void {
   const startIndex = state.words.length;
   const newWords = generateWordAppendBatch();
   appendWords(state, newWords);
-  appendWordsToDom(newWords, startIndex);
+  appendWordsToDom(state.words, newWords, startIndex);
 }
 
 export function handleInsertText(
@@ -94,6 +95,7 @@ export function handleInsertText(
 
   if (state.startedAt !== null) {
     state.keystrokes.push({
+      key: data,
       testMs: now - state.startedAt,
       correct,
       isExtra,
@@ -112,7 +114,7 @@ export function handleInsertText(
     result.committedWord = true;
     const wordCorrect = inputBefore === displayWord;
     const previousWordIndex = state.activeWordIndex;
-    markWordComplete(state.activeWordIndex, inputBefore, displayWord, wordCorrect);
+    markWordComplete(state.activeWordIndex, inputBefore, displayWord, wordCorrect, state.words);
     state.completedWords.push({ typed: inputBefore, target: displayWord });
     clearInputValue();
 
@@ -134,7 +136,7 @@ export function handleInsertText(
     return result;
   }
 
-  updateActiveWord(state.activeWordIndex, inputAfter, displayWord);
+  updateActiveWord(state.activeWordIndex, inputAfter, displayWord, state.words);
   updateActiveWordMetrics(state.activeWordIndex);
 
   const finishedLastCharacter =
@@ -146,6 +148,7 @@ export function handleInsertText(
       inputAfter,
       displayWord,
       inputAfter === displayWord,
+      state.words,
     );
     state.completedWords.push({ typed: inputAfter, target: displayWord });
     state.finished = true;
@@ -176,10 +179,11 @@ function deleteOneCharacter(state: TestState): void {
   if (input.length === 0) return;
 
   revertLastWpmCharCount(state);
+  state.keystrokes.pop();
 
   replaceLastInputChar("");
   const nextInput = getInputValue();
-  updateActiveWord(state.activeWordIndex, nextInput, getCurrentWord(state));
+  updateActiveWord(state.activeWordIndex, nextInput, getCurrentWord(state), state.words);
   updateActiveWordMetrics(state.activeWordIndex);
   afterAnyInput(state, nextInput);
 }
@@ -205,8 +209,10 @@ function clearCurrentWordInput(state: TestState): void {
     reverted += 1;
   }
 
+  state.keystrokes.length = getKeystrokeIndexAtStartOfActiveWord(state);
+
   clearInputValue();
-  updateActiveWord(state.activeWordIndex, "", getCurrentWord(state));
+  updateActiveWord(state.activeWordIndex, "", getCurrentWord(state), state.words);
   updateActiveWordMetrics(state.activeWordIndex);
   afterAnyInput(state, "");
 }
@@ -219,6 +225,7 @@ function goToPreviousWord(state: TestState, inputType: DeleteInputType): void {
 
   state.activeWordIndex -= 1;
   revertLastWpmCharCount(state);
+  state.keystrokes.pop();
 
   const restoredInput =
     inputType === "deleteContentBackward" ? previousCompleted.typed : "";
@@ -228,6 +235,7 @@ function goToPreviousWord(state: TestState, inputType: DeleteInputType): void {
     state.activeWordIndex,
     restoredInput,
     previousCompleted.target,
+    state.words,
   );
   setActiveWordHighlight(state.activeWordIndex);
   updateActiveWordMetrics(state.activeWordIndex);
@@ -290,6 +298,7 @@ function onBeforeInsert(state: TestState, data: string): boolean {
       data,
       displayWord,
       commitsWord,
+      state.words,
     )
   ) {
     return true;
