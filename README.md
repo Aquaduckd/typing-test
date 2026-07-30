@@ -51,7 +51,6 @@ Choose what you practice on:
 
 - Presets: **e200**, **1k**, **5k**, **10k**, **25k**, **450k**
 - **Custom** list — paste your own words (saved locally)
-- Changes apply on the next test restart
 
 ## Run locally
 
