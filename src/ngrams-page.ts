@@ -1,4 +1,10 @@
 import { queryRequired } from "./dom";
+import {
+  computeNgramSummaryStats,
+  formatCount,
+  formatDecimal,
+  type NgramSummaryStats,
+} from "./ngram-distribution-stats";
 import { clearStoredNgramStats, hasStoredNgramStats, loadStoredNgramStats } from "./ngram-storage";
 import { createNgramTable, storedAggregatesToStats } from "./ngram-table";
 import { refreshSlowTrigramLines } from "./slow-trigram-lines";
@@ -7,6 +13,11 @@ const ngramsEmptyEl = queryRequired<HTMLElement>("#ngrams-empty");
 const ngramsContentEl = queryRequired<HTMLElement>("#ngrams-content");
 const ngramsResetBtn = queryRequired<HTMLButtonElement>("#ngrams-reset");
 const ngramsDownloadJsonBtn = queryRequired<HTMLButtonElement>("#ngrams-download-json");
+const ngramsStatsKindEl = queryRequired<HTMLElement>("#ngrams-stats-kind");
+const ngramsStatUniqueEl = queryRequired<HTMLElement>("#ngrams-stat-unique");
+const ngramsStatTotalEl = queryRequired<HTMLElement>("#ngrams-stat-total");
+const ngramsStatAvgCountEl = queryRequired<HTMLElement>("#ngrams-stat-avg-count");
+const ngramsStatAvgMsEl = queryRequired<HTMLElement>("#ngrams-stat-avg-ms");
 
 const tabBigramsBtn = queryRequired<HTMLButtonElement>("#ngrams-tab-bigrams");
 const tabTrigramsBtn = queryRequired<HTMLButtonElement>("#ngrams-tab-trigrams");
@@ -76,6 +87,30 @@ function setNgramsTabState(tab: NgramsTab): void {
   bigramsPanelEl.classList.toggle("flex", tab === "bigrams");
   trigramsPanelEl.classList.toggle("hidden", tab !== "trigrams");
   trigramsPanelEl.classList.toggle("flex", tab === "trigrams");
+  updateSummaryStats();
+}
+
+function renderSummaryStats(kind: NgramsTab, stats: NgramSummaryStats | null): void {
+  ngramsStatsKindEl.textContent = kind;
+
+  if (!stats) {
+    ngramsStatUniqueEl.textContent = "—";
+    ngramsStatTotalEl.textContent = "—";
+    ngramsStatAvgCountEl.textContent = "—";
+    ngramsStatAvgMsEl.textContent = "—";
+    return;
+  }
+
+  ngramsStatUniqueEl.textContent = formatCount(stats.unique);
+  ngramsStatTotalEl.textContent = formatCount(stats.totalReps);
+  ngramsStatAvgCountEl.textContent = formatDecimal(stats.avgCount);
+  ngramsStatAvgMsEl.textContent = formatCount(stats.avgMs);
+}
+
+function updateSummaryStats(): void {
+  const stored = loadStoredNgramStats();
+  const store = activeTab === "bigrams" ? stored.bigrams : stored.trigrams;
+  renderSummaryStats(activeTab, computeNgramSummaryStats(store));
 }
 
 function updateNgramsVisibility(): void {
