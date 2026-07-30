@@ -1,37 +1,44 @@
 # Typing Test
 
-A fast, Monkeytype-style typing test that runs entirely in the browser. Type through random words, review detailed results, and track your progress over time.
+A browser typing test built for **practice**. As you type, the site learns which letter combinations are slow for you and underlines them in real time — so you can put extra focus on those spots and naturally improve over time.
+
+Monkeytype-style timing and feel, with ngram-aware feedback layered on top.
+
+## How practice works
+
+While you type, your slowest trigrams get underlined based on your lifetime stats:
+
+- **Red** — slower than your average for that trigram; worth slowing down and paying attention
+- **Green** — faster than your average; you're getting comfortable with this one
+
+The goal is not just to hit a WPM number once. Keep practicing, notice the underlines, and your weak ngrams gradually speed up.
 
 ## Typing test
 
-- **15-second timed test** — start typing on any key; a progress bar shows time remaining.
-- **Monkeytype-style feel** — hidden input, per-letter highlighting, smooth caret, and line scrolling as you move through longer passages.
-- **Click to focus** — click the word area if focus drifts.
-- **Restart with Esc** — press Esc to reset. If you restart mid-test, the same word list is kept so you can retry the same text.
-- **Slow trigram hints** — while you type, underlines mark trigrams that tend to be slow for you. Green means faster than your average; red means slower.
+- **15-second timed test** — start typing on any key; a progress bar shows time remaining
+- **Per-letter feedback** — smooth caret, line scrolling, and click-to-focus
+- **Restart with Esc** — mid-test restart keeps the same words so you can retry the same passage
 
 ## Results
 
-After each test, the results tab shows:
+After each test:
 
 - **WPM, raw WPM, accuracy, and consistency**
-- **WPM chart** with burst, raw, and error overlays (toggle series on and off)
-- **Bigram and trigram breakdown** for that run, including lifetime averages for comparison
-- **Date and time** of the result (your last result is saved locally)
+- **WPM chart** with burst, raw, and error overlays
+- **Bigram and trigram breakdown** for that run, compared to your lifetime averages
+- Your last result is saved locally with date and time
 
 ## Ngrams
 
-Lifetime bigram and trigram stats build up as you complete tests:
+Lifetime bigram and trigram stats power the underlines and deepen over time:
 
 - Sortable tables for bigrams and trigrams (avg ms and count)
 - **Download JSON** export with a timestamped filename
-- **Reset ngrams** to clear lifetime typing-timing data
+- **Reset ngrams** to start fresh
 
-Trigram timing is based on the text you were meant to type. Uncorrected mistakes apply a max penalty so bad runs do not skew your profile as if you typed cleanly.
+Trigram timing reflects the text you were meant to type. Uncorrected mistakes count as a max penalty so one bad run does not look like a clean rep.
 
 ## Stats
-
-Track overall progress:
 
 - **Tests started** and **tests completed**
 - **Personal bests** per word list — best WPM, accuracy, and date for each preset (and custom lists)
