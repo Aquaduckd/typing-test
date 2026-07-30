@@ -58,7 +58,7 @@ Choose what you practice on:
 
 Word selection is **trigram-informed**, not purely random:
 
-1. Draw **10 random candidates** from the active list (fast even on large lists like 450k)
+1. Draw **50 random candidates** from the active list (fast even on large lists like 450k)
 2. Score each by **average trigram novelty** — trigrams you have typed less often score higher
 3. Scoring is **context-aware** — includes cross-word boundary trigrams based on the text so far
 4. Pick the **highest-scoring** candidate (random tie-break)
