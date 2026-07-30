@@ -276,19 +276,3 @@ export function destroyResultChart(): void {
 export function resizeResultChart(): void {
   chart?.resize();
 }
-
-export function setChartDatasetVisibility(
-  label: "raw" | "burst" | "errors",
-  visible: boolean,
-): void {
-  if (!chart) return;
-  const dataset = chart.data.datasets.find((entry) => entry.label === label);
-  if (!dataset) return;
-  dataset.hidden = !visible;
-
-  if (label === "raw" || label === "burst") {
-    applyWpmScaleBounds();
-  }
-
-  chart.update();
-}

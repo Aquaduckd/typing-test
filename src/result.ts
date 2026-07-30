@@ -1,7 +1,6 @@
 import {
   destroyResultChart,
   resizeResultChart,
-  setChartDatasetVisibility,
   updateResultChart,
 } from "./chart";
 import { queryRequired } from "./dom";
@@ -35,17 +34,10 @@ const summaryPanelEl = queryRequired<HTMLElement>("#result-summary-panel");
 const bigramsPanelEl = queryRequired<HTMLElement>("#result-bigrams-panel");
 const trigramsPanelEl = queryRequired<HTMLElement>("#result-trigrams-panel");
 
-const toggleBurstBtn = queryRequired<HTMLButtonElement>("#toggle-burst");
-const toggleRawBtn = queryRequired<HTMLButtonElement>("#toggle-raw");
-const toggleErrorsBtn = queryRequired<HTMLButtonElement>("#toggle-errors");
-
 type ResultTab = "summary" | "bigrams" | "trigrams";
 
 let lastResult: TestResult | null = null;
 let activeTab: ResultTab = "summary";
-let burstVisible = true;
-let rawVisible = true;
-let errorsVisible = true;
 
 const bigramTable = createNgramTable({
   bodyEl: queryRequired<HTMLElement>("#result-bigrams-body"),
@@ -143,12 +135,6 @@ function populateResult(result: TestResult): void {
   modeEl.textContent = result.wordList ?? "—";
 
   updateResultChart(chartCanvas, result);
-  setChartDatasetVisibility("burst", burstVisible);
-  setChartDatasetVisibility("raw", rawVisible);
-  setChartDatasetVisibility("errors", errorsVisible);
-  setToggleState(toggleBurstBtn, burstVisible);
-  setToggleState(toggleRawBtn, rawVisible);
-  setToggleState(toggleErrorsBtn, errorsVisible);
 
   const stored = loadStoredNgramStats();
 
@@ -202,22 +188,4 @@ tabBigramsBtn.addEventListener("click", () => {
 
 tabTrigramsBtn.addEventListener("click", () => {
   setResultTabState("trigrams");
-});
-
-toggleBurstBtn.addEventListener("click", () => {
-  burstVisible = !burstVisible;
-  setChartDatasetVisibility("burst", burstVisible);
-  setToggleState(toggleBurstBtn, burstVisible);
-});
-
-toggleRawBtn.addEventListener("click", () => {
-  rawVisible = !rawVisible;
-  setChartDatasetVisibility("raw", rawVisible);
-  setToggleState(toggleRawBtn, rawVisible);
-});
-
-toggleErrorsBtn.addEventListener("click", () => {
-  errorsVisible = !errorsVisible;
-  setChartDatasetVisibility("errors", errorsVisible);
-  setToggleState(toggleErrorsBtn, errorsVisible);
 });
