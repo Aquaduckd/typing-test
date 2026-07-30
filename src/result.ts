@@ -59,6 +59,11 @@ const bigramTable = createNgramTable({
       label: "global ms",
     },
     {
+      button: queryRequired<HTMLButtonElement>("#bigram-sort-global-delta"),
+      key: "globalMeanDelta",
+      label: "Δ ms",
+    },
+    {
       button: queryRequired<HTMLButtonElement>("#bigram-sort-count"),
       key: "count",
       label: "count",
@@ -84,6 +89,11 @@ const trigramTable = createNgramTable({
       button: queryRequired<HTMLButtonElement>("#trigram-sort-global-ms"),
       key: "globalMeanMs",
       label: "global ms",
+    },
+    {
+      button: queryRequired<HTMLButtonElement>("#trigram-sort-global-delta"),
+      key: "globalMeanDelta",
+      label: "Δ ms",
     },
     {
       button: queryRequired<HTMLButtonElement>("#trigram-sort-count"),
@@ -136,15 +146,25 @@ function populateResult(result: TestResult): void {
 
   updateResultChart(chartCanvas, result);
 
-  const stored = loadStoredNgramStats();
-
-  bigramTable.resetRows(
-    enrichNgramStatsWithGlobalMean(result.bigrams, stored.bigrams),
-  );
-  trigramTable.resetRows(
-    enrichNgramStatsWithGlobalMean(result.trigrams, stored.trigrams),
-  );
+  const { bigrams, trigrams } = enrichResultNgrams(result);
+  bigramTable.resetRows(bigrams);
+  trigramTable.resetRows(trigrams);
   setResultTabState(activeTab);
+}
+
+function enrichResultNgrams(result: TestResult): {
+  bigrams: TestResult["bigrams"];
+  trigrams: TestResult["trigrams"];
+} {
+  if (result.bigrams.some((row) => row.globalMeanMs !== undefined)) {
+    return { bigrams: result.bigrams, trigrams: result.trigrams };
+  }
+
+  const stored = loadStoredNgramStats();
+  return {
+    bigrams: enrichNgramStatsWithGlobalMean(result.bigrams, stored.bigrams),
+    trigrams: enrichNgramStatsWithGlobalMean(result.trigrams, stored.trigrams),
+  };
 }
 
 export function setLastResult(result: TestResult): void {

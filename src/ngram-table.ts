@@ -50,15 +50,55 @@ export function enrichNgramStatsWithGlobalMean(
   }));
 }
 
+export function enrichNgramStatsWithGlobalMeanAndDelta(
+  rows: NgramStat[],
+  storedBefore: Record<string, StoredNgramAggregate>,
+  storedAfter: Record<string, StoredNgramAggregate>,
+): NgramStat[] {
+  return rows.map((row) => {
+    const before = getStoredMeanMs(storedBefore, row.ngram);
+    const after = getStoredMeanMs(storedAfter, row.ngram);
+
+    return {
+      ...row,
+      globalMeanMs: after,
+      globalMeanDelta:
+        before == null || after == null ? null : after - before,
+    };
+  });
+}
+
 function getCellClassName(key: NgramSortKey): string {
   switch (key) {
     case "ngram":
       return "px-3 py-2 align-middle font-medium text-zinc-100";
     case "count":
       return "px-3 py-2 align-middle text-zinc-500";
+    case "globalMeanDelta":
+      return "px-3 py-2 align-middle";
     default:
       return "px-3 py-2 align-middle text-zinc-300";
   }
+}
+
+function appendGlobalMeanDeltaCell(cell: HTMLTableCellElement, row: NgramStat): void {
+  const delta = row.globalMeanDelta;
+  const base = getCellClassName("globalMeanDelta");
+
+  if (delta == null) {
+    cell.className = `${base} text-zinc-300`;
+    cell.textContent = "—";
+    return;
+  }
+
+  if (delta === 0) {
+    cell.className = `${base} text-zinc-300`;
+    cell.textContent = "0";
+    return;
+  }
+
+  cell.className = `${base} ${delta > 0 ? "text-emerald-400" : "text-red-400"}`;
+  cell.textContent = `${delta > 0 ? "↑" : "↓"}${Math.abs(delta)}`;
 }
 
 function formatCellValue(row: NgramStat, key: NgramSortKey): string {
@@ -69,9 +109,22 @@ function formatCellValue(row: NgramStat, key: NgramSortKey): string {
       return String(row.meanMs);
     case "globalMeanMs":
       return row.globalMeanMs == null ? "—" : String(row.globalMeanMs);
+    case "globalMeanDelta":
+      if (row.globalMeanDelta == null) return "—";
+      if (row.globalMeanDelta === 0) return "0";
+      return `${row.globalMeanDelta > 0 ? "↑" : "↓"}${Math.abs(row.globalMeanDelta)}`;
     case "count":
       return String(row.count);
   }
+}
+
+function appendCellContent(cell: HTMLTableCellElement, row: NgramStat, key: NgramSortKey): void {
+  if (key === "globalMeanDelta") {
+    appendGlobalMeanDeltaCell(cell, row);
+    return;
+  }
+
+  cell.textContent = formatCellValue(row, key);
 }
 
 export function createNgramTable(elements: NgramTableElements): NgramTableController {
@@ -105,8 +158,10 @@ export function createNgramTable(elements: NgramTableElements): NgramTableContro
 
       for (const { key } of elements.sortHeaders) {
         const cell = document.createElement("td");
-        cell.className = getCellClassName(key);
-        cell.textContent = formatCellValue(row, key);
+        if (key !== "globalMeanDelta") {
+          cell.className = getCellClassName(key);
+        }
+        appendCellContent(cell, row, key);
         tr.append(cell);
       }
 

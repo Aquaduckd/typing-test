@@ -30,7 +30,8 @@ import {
   resetLineScroll,
 } from "./line-scroll";
 import { renderWords, setActiveWordHighlight } from "./render";
-import { recordKeystrokeNgrams } from "./ngram-storage";
+import { recordKeystrokeNgrams, loadStoredNgramStats } from "./ngram-storage";
+import { enrichNgramStatsWithGlobalMeanAndDelta } from "./ngram-table";
 import { buildTestResult, getResultKeystrokes } from "./result-stats";
 import { loadStoredLastResult } from "./result-storage";
 import { refreshResultsView, setLastResult } from "./result";
@@ -77,10 +78,22 @@ function completeTest(): void {
   completeTestProgress();
 
   const resultData = buildTestResult(state, activeTestWordList);
+  const storedBefore = loadStoredNgramStats();
   recordKeystrokeNgrams(
     state.words,
     state.mode,
     getResultKeystrokes(state),
+  );
+  const storedAfter = loadStoredNgramStats();
+  resultData.bigrams = enrichNgramStatsWithGlobalMeanAndDelta(
+    resultData.bigrams,
+    storedBefore.bigrams,
+    storedAfter.bigrams,
+  );
+  resultData.trigrams = enrichNgramStatsWithGlobalMeanAndDelta(
+    resultData.trigrams,
+    storedBefore.trigrams,
+    storedAfter.trigrams,
   );
   recordTestCompleted(
     activeTestWordList,

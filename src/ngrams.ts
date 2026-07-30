@@ -131,9 +131,16 @@ export type NgramStat = {
   meanMs: number;
   count: number;
   globalMeanMs?: number | null;
+  /** Change in lifetime avg ms from before to after the latest test. */
+  globalMeanDelta?: number | null;
 };
 
-export type NgramSortKey = "ngram" | "meanMs" | "globalMeanMs" | "count";
+export type NgramSortKey =
+  | "ngram"
+  | "meanMs"
+  | "globalMeanMs"
+  | "globalMeanDelta"
+  | "count";
 
 export const MAX_NGRAM_DURATION_MS = 1000;
 
@@ -219,6 +226,15 @@ export function sortNgrams(
         const aMs = a.globalMeanMs ?? (ascending ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY);
         const bMs = b.globalMeanMs ?? (ascending ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY);
         return direction * (aMs - bMs) || a.ngram.localeCompare(b.ngram);
+      }
+      case "globalMeanDelta": {
+        const aDelta =
+          a.globalMeanDelta ??
+          (ascending ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY);
+        const bDelta =
+          b.globalMeanDelta ??
+          (ascending ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY);
+        return direction * (aDelta - bDelta) || a.ngram.localeCompare(b.ngram);
       }
       case "count":
         return direction * (a.count - b.count) || a.ngram.localeCompare(b.ngram);
