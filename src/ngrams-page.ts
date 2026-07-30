@@ -6,26 +6,7 @@ import { refreshSlowTrigramLines } from "./slow-trigram-lines";
 const ngramsEmptyEl = queryRequired<HTMLElement>("#ngrams-empty");
 const ngramsContentEl = queryRequired<HTMLElement>("#ngrams-content");
 const ngramsResetBtn = queryRequired<HTMLButtonElement>("#ngrams-reset");
-const ngramsCopyJsonBtn = queryRequired<HTMLButtonElement>("#ngrams-copy-json");
-
-const COPY_JSON_LABEL = "Copy JSON";
-const COPY_JSON_COPIED_LABEL = "Copied!";
-let copyJsonResetTimeout: number | null = null;
-
-function showCopyJsonFeedback(): void {
-  if (copyJsonResetTimeout !== null) {
-    window.clearTimeout(copyJsonResetTimeout);
-  }
-
-  ngramsCopyJsonBtn.textContent = COPY_JSON_COPIED_LABEL;
-  ngramsCopyJsonBtn.disabled = true;
-
-  copyJsonResetTimeout = window.setTimeout(() => {
-    copyJsonResetTimeout = null;
-    ngramsCopyJsonBtn.textContent = COPY_JSON_LABEL;
-    ngramsCopyJsonBtn.disabled = false;
-  }, 1500);
-}
+const ngramsDownloadJsonBtn = queryRequired<HTMLButtonElement>("#ngrams-download-json");
 
 const tabBigramsBtn = queryRequired<HTMLButtonElement>("#ngrams-tab-bigrams");
 const tabTrigramsBtn = queryRequired<HTMLButtonElement>("#ngrams-tab-trigrams");
@@ -117,6 +98,21 @@ export function refreshNgramsView(): void {
   populateNgramsTables();
 }
 
+function formatDownloadTimestamp(date: Date): string {
+  return date.toISOString().replace(/[:.]/g, "-").slice(0, 19);
+}
+
+function downloadNgramJson(): void {
+  const json = JSON.stringify(loadStoredNgramStats(), null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `typing-test-ngrams-${formatDownloadTimestamp(new Date())}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 tabBigramsBtn.addEventListener("click", () => {
   setNgramsTabState("bigrams");
 });
@@ -125,15 +121,8 @@ tabTrigramsBtn.addEventListener("click", () => {
   setNgramsTabState("trigrams");
 });
 
-ngramsCopyJsonBtn.addEventListener("click", async () => {
-  const json = JSON.stringify(loadStoredNgramStats(), null, 2);
-
-  try {
-    await navigator.clipboard.writeText(json);
-    showCopyJsonFeedback();
-  } catch {
-    window.prompt("Copy ngram JSON:", json);
-  }
+ngramsDownloadJsonBtn.addEventListener("click", () => {
+  downloadNgramJson();
 });
 
 ngramsResetBtn.addEventListener("click", () => {
