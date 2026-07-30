@@ -50,7 +50,6 @@ import {
 import { generateInitialWordBuffer } from "./words-generator";
 
 const statusEl = queryRequired<HTMLElement>("#status");
-const restartBtn = queryRequired<HTMLButtonElement>("#restart");
 const resultRestartBtn = queryRequired<HTMLButtonElement>("#result-restart");
 const wordsWrapper = queryRequired<HTMLElement>("#words-wrapper");
 
@@ -176,7 +175,6 @@ function restartTest(): void {
   focusInput();
 }
 
-restartBtn.addEventListener("click", restartTest);
 resultRestartBtn.addEventListener("click", restartTest);
 
 wordsWrapper.addEventListener("click", () => {

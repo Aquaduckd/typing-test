@@ -1,9 +1,11 @@
 import { queryRequired } from "./dom";
-import { hasStoredNgramStats, loadStoredNgramStats } from "./ngram-storage";
+import { clearStoredNgramStats, hasStoredNgramStats, loadStoredNgramStats } from "./ngram-storage";
 import { createNgramTable, storedAggregatesToStats } from "./ngram-table";
+import { refreshSlowTrigramLines } from "./slow-trigram-lines";
 
 const statsEmptyEl = queryRequired<HTMLElement>("#stats-empty");
 const statsContentEl = queryRequired<HTMLElement>("#stats-content");
+const statsResetBtn = queryRequired<HTMLButtonElement>("#stats-reset");
 
 const tabBigramsBtn = queryRequired<HTMLButtonElement>("#stats-tab-bigrams");
 const tabTrigramsBtn = queryRequired<HTMLButtonElement>("#stats-tab-trigrams");
@@ -101,4 +103,20 @@ tabBigramsBtn.addEventListener("click", () => {
 
 tabTrigramsBtn.addEventListener("click", () => {
   setStatsTabState("trigrams");
+});
+
+statsResetBtn.addEventListener("click", () => {
+  if (
+    !confirm(
+      "Reset all lifetime bigram and trigram stats? This cannot be undone.",
+    )
+  ) {
+    return;
+  }
+
+  clearStoredNgramStats();
+  bigramTable.resetRows([]);
+  trigramTable.resetRows([]);
+  refreshStatsView();
+  refreshSlowTrigramLines();
 });

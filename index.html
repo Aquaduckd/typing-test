@@ -88,20 +88,14 @@
               </div>
             </div>
 
-            <p id="status" class="mt-6 h-5 text-center text-sm text-zinc-600">
-              Press any key to start
-            </p>
-          </div>
-
-          <footer id="test-footer" class="mt-10 flex justify-end text-xs text-zinc-600">
-            <button
-              id="restart"
-              type="button"
-              class="rounded-md border border-zinc-700 px-3 py-1.5 text-zinc-400 transition hover:border-zinc-500 hover:text-zinc-200"
+            <div
+              class="mt-6 flex h-5 items-center justify-center gap-2 text-sm text-zinc-600"
             >
-              Restart
-            </button>
-          </footer>
+              <p id="status">Press any key to start</p>
+              <span aria-hidden="true" class="text-zinc-700">·</span>
+              <p>Press Esc to restart</p>
+            </div>
+          </div>
         </section>
 
         <section id="site-panel-results" class="hidden flex-col gap-6">
@@ -322,20 +316,29 @@
           </div>
 
           <div id="stats-content" class="hidden flex-col gap-6 px-1 py-2 sm:px-2">
-            <div class="flex gap-2 px-1 text-xs">
+            <div class="flex items-center justify-between gap-2 px-1 text-xs">
+              <div class="flex gap-2">
+                <button
+                  id="stats-tab-bigrams"
+                  type="button"
+                  class="rounded border border-zinc-700 px-2 py-1 text-zinc-500 transition hover:border-zinc-500 hover:text-zinc-300"
+                >
+                  bigrams
+                </button>
+                <button
+                  id="stats-tab-trigrams"
+                  type="button"
+                  class="rounded border border-amber-500/60 px-2 py-1 text-amber-400 transition hover:border-amber-400"
+                >
+                  trigrams
+                </button>
+              </div>
               <button
-                id="stats-tab-bigrams"
+                id="stats-reset"
                 type="button"
-                class="rounded border border-zinc-700 px-2 py-1 text-zinc-500 transition hover:border-zinc-500 hover:text-zinc-300"
+                class="rounded-md border border-red-500/60 px-3 py-1.5 text-red-400 transition hover:border-red-400 hover:text-red-300"
               >
-                bigrams
-              </button>
-              <button
-                id="stats-tab-trigrams"
-                type="button"
-                class="rounded border border-amber-500/60 px-2 py-1 text-amber-400 transition hover:border-amber-400"
-              >
-                trigrams
+                Reset stats
               </button>
             </div>
 

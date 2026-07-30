@@ -8,6 +8,13 @@ export type NgramStat = {
 
 export type NgramSortKey = "ngram" | "meanMs" | "count";
 
+export const MAX_NGRAM_DURATION_MS = 1000;
+
+export function capNgramDurationMs(duration: number): number {
+  if (duration < 0) return duration;
+  return Math.min(duration, MAX_NGRAM_DURATION_MS);
+}
+
 function formatKey(key: string): string {
   if (key === " ") return "_";
   return key;
@@ -39,7 +46,7 @@ export function collectBigramDurations(
     if (duration < 0) continue;
 
     const existing = durations.get(label) ?? [];
-    existing.push(duration);
+    existing.push(capNgramDurationMs(duration));
     durations.set(label, existing);
   }
 
@@ -61,7 +68,7 @@ export function collectTrigramDurations(
     if (duration < 0) continue;
 
     const existing = durations.get(label) ?? [];
-    existing.push(duration);
+    existing.push(capNgramDurationMs(duration));
     durations.set(label, existing);
   }
 

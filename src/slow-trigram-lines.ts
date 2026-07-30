@@ -1,4 +1,4 @@
-import { formatNgramLabel } from "./ngrams";
+import { capNgramDurationMs, formatNgramLabel } from "./ngrams";
 import {
   getSlowTrigramSet,
   getSlowTrigramStarts,
@@ -106,8 +106,9 @@ function getTrigramLineStatus(
   const meanMs = getStoredTrigramMeanMs(trigram);
   if (meanMs === null) return "pending";
 
-  const duration =
-    sequence[globalFlatStart + 2]!.testMs - sequence[globalFlatStart]!.testMs;
+  const duration = capNgramDurationMs(
+    sequence[globalFlatStart + 2]!.testMs - sequence[globalFlatStart]!.testMs,
+  );
 
   return duration < meanMs ? "faster" : "slower";
 }

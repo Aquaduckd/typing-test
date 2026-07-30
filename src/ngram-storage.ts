@@ -75,3 +75,7 @@ export function hasStoredNgramStats(): boolean {
     Object.keys(stats.bigrams).length > 0 || Object.keys(stats.trigrams).length > 0
   );
 }
+
+export function clearStoredNgramStats(): void {
+  localStorage.removeItem(STORAGE_KEY);
+}
