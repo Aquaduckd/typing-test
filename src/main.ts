@@ -55,6 +55,7 @@ import {
   setSlowTrigramWordsProvider,
 } from "./slow-trigram-lines";
 import { generateInitialWordBuffer } from "./words-generator";
+import { setWordPickSubtitleCue } from "./word-pick-subtitle-cue";
 
 const statusEl = queryRequired<HTMLElement>("#status");
 const resultRestartBtn = queryRequired<HTMLButtonElement>("#result-restart");
@@ -156,6 +157,7 @@ function initTest(options?: { keepWords?: boolean }): void {
   startBlinking();
   resetTestProgress();
   setStatus("Press any key to start");
+  setWordPickSubtitleCue(state.wordPickMode);
 
   scheduleViewportLayout();
 }
