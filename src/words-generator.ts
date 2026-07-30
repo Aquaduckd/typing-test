@@ -2,7 +2,7 @@ import english from "./data/english.json";
 import { TEST_CONFIG } from "./config";
 import { loadStoredNgramStats } from "./ngram-storage";
 import { getActiveWordList } from "./word-list-storage";
-import { pickBestTrigramWord } from "./word-picker";
+import { pickNextWord } from "./word-picker";
 
 /** Mirrors Monkeytype's default word selection from the language list. */
 export function generateWords(count: number, alreadyUsed: readonly string[] = []): string[] {
@@ -15,7 +15,7 @@ export function generateWords(count: number, alreadyUsed: readonly string[] = []
   let previousWord2 = "";
 
   while (words.length < count) {
-    const word = pickBestTrigramWord(
+    const word = pickNextWord(
       flatBefore,
       wordList,
       trigramStats,

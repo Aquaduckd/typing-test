@@ -116,7 +116,7 @@ export function pickBestTrigramWord(
   );
 
   if (candidates.length === 0) {
-    return pickFallbackWord(wordList, previousWord, previousWord2, usedWords);
+    return pickRandomWord(wordList, previousWord, previousWord2, usedWords);
   }
 
   const scoreCandidates = prefersUnusedWords(wordList, usedWords)
@@ -140,11 +140,33 @@ export function pickBestTrigramWord(
   const index = Math.floor(Math.random() * bestCandidates.length);
   return (
     bestCandidates[index] ??
-    pickFallbackWord(wordList, previousWord, previousWord2, usedWords)
+    pickRandomWord(wordList, previousWord, previousWord2, usedWords)
   );
 }
 
-function pickFallbackWord(
+export function pickNextWord(
+  flatBefore: string,
+  wordList: string[],
+  stats: StoredNgramStats,
+  previousWord: string,
+  previousWord2: string,
+  usedWords: ReadonlySet<string>,
+): string {
+  if (Math.random() < TEST_CONFIG.wordPickRandomRate) {
+    return pickRandomWord(wordList, previousWord, previousWord2, usedWords);
+  }
+
+  return pickBestTrigramWord(
+    flatBefore,
+    wordList,
+    stats,
+    previousWord,
+    previousWord2,
+    usedWords,
+  );
+}
+
+function pickRandomWord(
   wordList: string[],
   previousWord: string,
   previousWord2: string,
