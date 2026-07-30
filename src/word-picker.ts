@@ -45,14 +45,17 @@ export function scoreWordTrigramNovelty(
   word: string,
   stats: StoredNgramStats,
 ): number {
+  const labels = collectWordTrigramLabels(flatBefore, word);
+  if (labels.length === 0) return 0;
+
   let score = 0;
 
-  for (const label of collectWordTrigramLabels(flatBefore, word)) {
+  for (const label of labels) {
     const count = stats.trigrams[label]?.count ?? 0;
     score += 1 / (count + 1);
   }
 
-  return score;
+  return score / labels.length;
 }
 
 export function pickRandomWordCandidates(
