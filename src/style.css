@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@keyframes caretFlashSmooth {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+#caret {
+  animation: caretFlashSmooth 1s infinite;
+}
