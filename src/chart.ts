@@ -206,6 +206,15 @@ export function updateResultChart(canvas: HTMLCanvasElement, result: TestResult)
           bodyColor: "#fafafa",
           borderColor: "#3f3f46",
           borderWidth: 1,
+          callbacks: {
+            label(context) {
+              const datasetLabel = context.dataset.label ?? "";
+              if (datasetLabel === "errors") {
+                return `errors: ${context.parsed.y}`;
+              }
+              return `${datasetLabel}: ${context.parsed.y}`;
+            },
+          },
         },
       },
       scales: {
