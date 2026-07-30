@@ -60,7 +60,8 @@ const statusEl = queryRequired<HTMLElement>("#status");
 const resultRestartBtn = queryRequired<HTMLButtonElement>("#result-restart");
 const wordsWrapper = queryRequired<HTMLElement>("#words-wrapper");
 
-let state: TestState = createInitialState(generateInitialWordBuffer());
+const initialWords = generateInitialWordBuffer();
+let state: TestState = createInitialState(initialWords.words, initialWords.pickMode);
 let activeTestWordList: WordListSelection = "e200";
 let testStartRecorded = false;
 
@@ -130,10 +131,12 @@ function initTest(options?: { keepWords?: boolean }): void {
   stopTestTimer();
 
   const keepWords = options?.keepWords ?? false;
-  const words = keepWords ? [...state.words] : generateInitialWordBuffer();
+  const generated = keepWords
+    ? { words: [...state.words], pickMode: state.wordPickMode }
+    : generateInitialWordBuffer();
   const preserveStartCount = keepWords && isMidTest();
 
-  state = createInitialState(words);
+  state = createInitialState(generated.words, generated.pickMode);
 
   if (!keepWords) {
     activeTestWordList = loadWordListSelection() ?? "e200";

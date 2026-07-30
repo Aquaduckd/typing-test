@@ -144,6 +144,12 @@ export function pickBestTrigramWord(
   );
 }
 
+export type WordPickMode = "trigram" | "random";
+
+export function rollWordPickMode(): WordPickMode {
+  return Math.random() < TEST_CONFIG.wordPickRandomRate ? "random" : "trigram";
+}
+
 export function pickNextWord(
   flatBefore: string,
   wordList: string[],
@@ -151,8 +157,9 @@ export function pickNextWord(
   previousWord: string,
   previousWord2: string,
   usedWords: ReadonlySet<string>,
+  mode: WordPickMode,
 ): string {
-  if (Math.random() < TEST_CONFIG.wordPickRandomRate) {
+  if (mode === "random") {
     return pickRandomWord(wordList, previousWord, previousWord2, usedWords);
   }
 
