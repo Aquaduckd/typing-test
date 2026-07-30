@@ -7,7 +7,7 @@ export const TEST_CONFIG = {
   wordAppendThreshold: 5,
   wordAppendBatch: 20,
   /** Random shortlist size when picking the next word from trigram novelty scores. */
-  wordPickCandidateCount: 10,
+  wordPickCandidateCount: 50,
 };
 
 export const CHART_CONFIG = {
