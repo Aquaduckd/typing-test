@@ -361,13 +361,22 @@
                   trigrams
                 </button>
               </div>
-              <button
-                id="stats-reset"
-                type="button"
-                class="rounded-md border border-red-500/60 px-3 py-1.5 text-red-400 transition hover:border-red-400 hover:text-red-300"
-              >
-                Reset stats
-              </button>
+              <div class="flex gap-2">
+                <button
+                  id="stats-copy-json"
+                  type="button"
+                  class="rounded-md border border-zinc-700 px-3 py-1.5 text-zinc-400 transition hover:border-zinc-500 hover:text-zinc-200"
+                >
+                  Copy JSON
+                </button>
+                <button
+                  id="stats-reset"
+                  type="button"
+                  class="rounded-md border border-red-500/60 px-3 py-1.5 text-red-400 transition hover:border-red-400 hover:text-red-300"
+                >
+                  Reset stats
+                </button>
+              </div>
             </div>
 
             <div id="stats-bigrams-panel" class="hidden flex-col gap-8">

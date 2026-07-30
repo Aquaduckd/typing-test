@@ -6,6 +6,26 @@ import { refreshSlowTrigramLines } from "./slow-trigram-lines";
 const statsEmptyEl = queryRequired<HTMLElement>("#stats-empty");
 const statsContentEl = queryRequired<HTMLElement>("#stats-content");
 const statsResetBtn = queryRequired<HTMLButtonElement>("#stats-reset");
+const statsCopyJsonBtn = queryRequired<HTMLButtonElement>("#stats-copy-json");
+
+const COPY_JSON_LABEL = "Copy JSON";
+const COPY_JSON_COPIED_LABEL = "Copied!";
+let copyJsonResetTimeout: number | null = null;
+
+function showCopyJsonFeedback(): void {
+  if (copyJsonResetTimeout !== null) {
+    window.clearTimeout(copyJsonResetTimeout);
+  }
+
+  statsCopyJsonBtn.textContent = COPY_JSON_COPIED_LABEL;
+  statsCopyJsonBtn.disabled = true;
+
+  copyJsonResetTimeout = window.setTimeout(() => {
+    copyJsonResetTimeout = null;
+    statsCopyJsonBtn.textContent = COPY_JSON_LABEL;
+    statsCopyJsonBtn.disabled = false;
+  }, 1500);
+}
 
 const tabBigramsBtn = queryRequired<HTMLButtonElement>("#stats-tab-bigrams");
 const tabTrigramsBtn = queryRequired<HTMLButtonElement>("#stats-tab-trigrams");
@@ -103,6 +123,17 @@ tabBigramsBtn.addEventListener("click", () => {
 
 tabTrigramsBtn.addEventListener("click", () => {
   setStatsTabState("trigrams");
+});
+
+statsCopyJsonBtn.addEventListener("click", async () => {
+  const json = JSON.stringify(loadStoredNgramStats(), null, 2);
+
+  try {
+    await navigator.clipboard.writeText(json);
+    showCopyJsonFeedback();
+  } catch {
+    window.prompt("Copy stats JSON:", json);
+  }
 });
 
 statsResetBtn.addEventListener("click", () => {
