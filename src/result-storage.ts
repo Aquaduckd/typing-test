@@ -12,6 +12,10 @@ function isTestResult(value: unknown): value is TestResult {
     typeof result.accuracy === "number" &&
     typeof result.consistency === "number" &&
     typeof result.durationMs === "number" &&
+    (result.mode === undefined || result.mode === "time") &&
+    (result.timeLimitSeconds === undefined ||
+      typeof result.timeLimitSeconds === "number") &&
+    (result.wordList === undefined || typeof result.wordList === "string") &&
     (result.completedAt === undefined || typeof result.completedAt === "number") &&
     Array.isArray(result.charStats) &&
     result.charStats.length === 4 &&

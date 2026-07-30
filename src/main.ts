@@ -76,7 +76,7 @@ function completeTest(): void {
   stopTestTimer();
   completeTestProgress();
 
-  const resultData = buildTestResult(state);
+  const resultData = buildTestResult(state, activeTestWordList);
   recordKeystrokeNgrams(
     state.words,
     state.mode,

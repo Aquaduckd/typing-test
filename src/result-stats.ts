@@ -4,6 +4,7 @@ import {
   calculateWpm,
   roundTo2,
 } from "./stats";
+import type { WordListSelection } from "./word-list-presets";
 import type { KeystrokeEvent, TestState } from "./state";
 
 export type { NgramStat };
@@ -25,6 +26,9 @@ export type TestResult = {
   accuracy: number;
   consistency: number;
   durationMs: number;
+  mode?: TestState["mode"];
+  timeLimitSeconds?: number;
+  wordList?: WordListSelection;
   completedAt?: number;
   charStats: [number, number, number, number];
   chartData: {
@@ -192,7 +196,10 @@ function getBurstHistory(
   });
 }
 
-export function buildTestResult(state: TestState): TestResult {
+export function buildTestResult(
+  state: TestState,
+  wordList: WordListSelection,
+): TestResult {
   const durationMs = getTestDurationMs(state);
   const charCounts = getCharCounts(state, durationMs);
   const resultKeystrokes = getKeystrokesForResult(state, durationMs);
@@ -237,6 +244,9 @@ export function buildTestResult(state: TestState): TestResult {
     accuracy,
     consistency,
     durationMs,
+    mode: state.mode,
+    timeLimitSeconds: state.timeLimitSeconds,
+    wordList,
     completedAt: Date.now(),
     charStats: [
       charCounts.correct,

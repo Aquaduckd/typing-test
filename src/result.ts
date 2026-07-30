@@ -12,7 +12,6 @@ import {
   formatAccuracy,
   formatPercentage,
   formatResultDateTime,
-  formatResultTime,
   formatTypingSpeed,
   type TestResult,
 } from "./result-stats";
@@ -26,7 +25,7 @@ const dateEl = queryRequired<HTMLElement>("#result-date");
 const rawEl = queryRequired<HTMLElement>("#result-raw");
 const charsEl = queryRequired<HTMLElement>("#result-chars");
 const consistencyEl = queryRequired<HTMLElement>("#result-consistency");
-const timeEl = queryRequired<HTMLElement>("#result-time");
+const modeEl = queryRequired<HTMLElement>("#result-mode");
 const chartCanvas = queryRequired<HTMLCanvasElement>("#wpm-chart");
 
 const tabSummaryBtn = queryRequired<HTMLButtonElement>("#result-tab-chart");
@@ -141,7 +140,7 @@ function populateResult(result: TestResult): void {
   rawEl.textContent = formatTypingSpeed(result.rawWpm);
   charsEl.textContent = result.charStats.join("/");
   consistencyEl.textContent = formatPercentage(result.consistency);
-  timeEl.textContent = formatResultTime(result.durationMs);
+  modeEl.textContent = result.wordList ?? "—";
 
   updateResultChart(chartCanvas, result);
   setChartDatasetVisibility("burst", burstVisible);
