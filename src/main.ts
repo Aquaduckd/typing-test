@@ -35,6 +35,7 @@ import { buildTestResult, getResultKeystrokes } from "./result-stats";
 import { refreshResultsView, setLastResult } from "./result";
 import { onSiteTabChange, setSiteTab, getSiteTab } from "./site-nav";
 import { refreshStatsView } from "./stats-page";
+import { refreshWordsView } from "./words-page";
 import { createInitialState, getTypedTargetFlatLength, type TestState } from "./state";
 import {
   completeTestProgress,
@@ -170,9 +171,13 @@ function wireInput(): void {
 }
 
 function restartTest(): void {
-  initTest();
+  if (getSiteTab() === "test") {
+    initTest();
+    focusInput();
+    return;
+  }
+
   setSiteTab("test");
-  focusInput();
 }
 
 resultRestartBtn.addEventListener("click", restartTest);
@@ -211,16 +216,18 @@ setSlowTrigramTypedFlatLengthProvider(() =>
 
 onSiteTabChange((tab) => {
   if (tab === "test") {
-    if (state.finished) {
-      initTest();
-    }
+    initTest();
     focusInput();
+    return;
   }
   if (tab === "results") {
     refreshResultsView();
   }
   if (tab === "stats") {
     refreshStatsView();
+  }
+  if (tab === "words") {
+    refreshWordsView();
   }
 });
 

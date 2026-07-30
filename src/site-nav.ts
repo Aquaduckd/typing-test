@@ -1,24 +1,28 @@
 import { queryRequired } from "./dom";
 
-export type SiteTab = "test" | "results" | "stats";
+export type SiteTab = "test" | "results" | "stats" | "words";
 
 const tabTestBtn = queryRequired<HTMLButtonElement>("#site-tab-test");
 const tabResultsBtn = queryRequired<HTMLButtonElement>("#site-tab-results");
 const tabStatsBtn = queryRequired<HTMLButtonElement>("#site-tab-stats");
+const tabWordsBtn = queryRequired<HTMLButtonElement>("#site-tab-words");
 const testPanelEl = queryRequired<HTMLElement>("#site-panel-test");
 const resultsPanelEl = queryRequired<HTMLElement>("#site-panel-results");
 const statsPanelEl = queryRequired<HTMLElement>("#site-panel-stats");
+const wordsPanelEl = queryRequired<HTMLElement>("#site-panel-words");
 
 const TAB_BUTTONS: Record<SiteTab, HTMLButtonElement> = {
   test: tabTestBtn,
   results: tabResultsBtn,
   stats: tabStatsBtn,
+  words: tabWordsBtn,
 };
 
 const TAB_PANELS: Record<SiteTab, HTMLElement> = {
   test: testPanelEl,
   results: resultsPanelEl,
   stats: statsPanelEl,
+  words: wordsPanelEl,
 };
 
 let activeTab: SiteTab = "test";
@@ -33,6 +37,12 @@ function setTabButtonState(button: HTMLButtonElement, active: boolean): void {
 
 export function getSiteTab(): SiteTab {
   return activeTab;
+}
+
+function notifyTabListeners(tab: SiteTab): void {
+  for (const listener of listeners) {
+    listener(tab);
+  }
 }
 
 export function setSiteTab(tab: SiteTab): void {
@@ -50,9 +60,7 @@ export function setSiteTab(tab: SiteTab): void {
     panel.classList.toggle("flex", isActive);
   }
 
-  for (const listener of listeners) {
-    listener(tab);
-  }
+  notifyTabListeners(tab);
 }
 
 export function onSiteTabChange(listener: (tab: SiteTab) => void): void {
@@ -60,6 +68,11 @@ export function onSiteTabChange(listener: (tab: SiteTab) => void): void {
 }
 
 tabTestBtn.addEventListener("click", () => {
+  if (activeTab === "test") {
+    notifyTabListeners("test");
+    return;
+  }
+
   setSiteTab("test");
 });
 
@@ -69,4 +82,8 @@ tabResultsBtn.addEventListener("click", () => {
 
 tabStatsBtn.addEventListener("click", () => {
   setSiteTab("stats");
+});
+
+tabWordsBtn.addEventListener("click", () => {
+  setSiteTab("words");
 });

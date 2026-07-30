@@ -1,9 +1,9 @@
 import english from "./data/english.json";
 import { TEST_CONFIG } from "./config";
-
-const wordList = english.words;
+import { getActiveWordList } from "./word-list-storage";
 
 function pickRandomWord(): string {
+  const wordList = getActiveWordList();
   const index = Math.floor(Math.random() * wordList.length);
   return wordList[index] ?? "the";
 }

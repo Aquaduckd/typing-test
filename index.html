@@ -24,6 +24,13 @@
         </div>
         <nav class="flex gap-2 text-xs">
           <button
+            id="site-tab-words"
+            type="button"
+            class="rounded border border-zinc-700 px-3 py-1.5 text-zinc-500 transition hover:border-zinc-500 hover:text-zinc-300"
+          >
+            words
+          </button>
+          <button
             id="site-tab-test"
             type="button"
             class="rounded border border-amber-500/60 px-3 py-1.5 text-amber-400 transition hover:border-amber-400"
@@ -430,6 +437,75 @@
               </div>
             </div>
           </div>
+        </section>
+
+        <section id="site-panel-words" class="hidden flex-col gap-4 px-1 py-2 sm:px-2">
+          <div class="flex items-baseline justify-between gap-4 px-1">
+            <p class="text-sm text-zinc-500">
+              Words for the typing test, separated by whitespace. Changes apply on the next
+              restart.
+            </p>
+            <p id="words-list-count" class="shrink-0 text-xs tabular-nums text-zinc-600">
+              0 words
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-2 px-1 text-xs">
+            <button
+              id="words-preset-e200"
+              type="button"
+              data-word-preset="e200"
+              class="rounded border border-zinc-700 px-2 py-1 text-zinc-500 transition hover:border-zinc-500 hover:text-zinc-300"
+            >
+              e200
+            </button>
+            <button
+              id="words-preset-1k"
+              type="button"
+              data-word-preset="1k"
+              class="rounded border border-zinc-700 px-2 py-1 text-zinc-500 transition hover:border-zinc-500 hover:text-zinc-300"
+            >
+              1k
+            </button>
+            <button
+              id="words-preset-5k"
+              type="button"
+              data-word-preset="5k"
+              class="rounded border border-zinc-700 px-2 py-1 text-zinc-500 transition hover:border-zinc-500 hover:text-zinc-300"
+            >
+              5k
+            </button>
+            <button
+              id="words-preset-10k"
+              type="button"
+              data-word-preset="10k"
+              class="rounded border border-zinc-700 px-2 py-1 text-zinc-500 transition hover:border-zinc-500 hover:text-zinc-300"
+            >
+              10k
+            </button>
+            <button
+              id="words-preset-25k"
+              type="button"
+              data-word-preset="25k"
+              class="rounded border border-zinc-700 px-2 py-1 text-zinc-500 transition hover:border-zinc-500 hover:text-zinc-300"
+            >
+              25k
+            </button>
+            <button
+              id="words-preset-450k"
+              type="button"
+              data-word-preset="450k"
+              class="rounded border border-zinc-700 px-2 py-1 text-zinc-500 transition hover:border-zinc-500 hover:text-zinc-300"
+            >
+              450k
+            </button>
+          </div>
+          <textarea
+            id="words-list-input"
+            spellcheck="false"
+            autocorrect="off"
+            autocapitalize="off"
+            class="min-h-[28rem] w-full resize-y rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-4 font-['Roboto_Mono',ui-monospace,monospace] text-sm leading-relaxed text-zinc-300 outline-none transition focus:border-zinc-700"
+          ></textarea>
         </section>
       </main>
     </div>
