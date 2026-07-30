@@ -105,11 +105,27 @@ function scheduleViewportLayout(): void {
   });
 }
 
-function initTest(): void {
+function isMidTest(): boolean {
+  return state.startedAt !== null && !state.finished;
+}
+
+function initTest(options?: { keepWords?: boolean }): void {
   stopTestTimer();
-  state = createInitialState(generateInitialWordBuffer());
-  activeTestWordList = loadWordListSelection() ?? "e200";
-  testStartRecorded = false;
+
+  const keepWords = options?.keepWords ?? false;
+  const words = keepWords ? [...state.words] : generateInitialWordBuffer();
+  const preserveStartCount = keepWords && isMidTest();
+
+  state = createInitialState(words);
+
+  if (!keepWords) {
+    activeTestWordList = loadWordListSelection() ?? "e200";
+    testStartRecorded = false;
+  } else if (preserveStartCount) {
+    // Retry on the same text should not count as another started test.
+  } else {
+    testStartRecorded = false;
+  }
 
   clearInputValue();
   renderWords(state.words);
@@ -191,7 +207,7 @@ function wireInput(): void {
 
 function restartTest(): void {
   if (getSiteTab() === "test") {
-    initTest();
+    initTest({ keepWords: isMidTest() });
     focusInput();
     return;
   }
