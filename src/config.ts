@@ -7,7 +7,7 @@ export const TEST_CONFIG = {
   wordAppendThreshold: 5,
   wordAppendBatch: 20,
   /** Random shortlist size when picking the next word from cap-head scores. */
-  wordPickCandidateCount: 500,
+  wordPickCandidateCount: 100,
 };
 
 export const CHART_CONFIG = {
