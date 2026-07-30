@@ -6,6 +6,8 @@ export const TEST_CONFIG = {
   /** Append more words when the cursor gets this close to the end. */
   wordAppendThreshold: 5,
   wordAppendBatch: 20,
+  /** Random shortlist size when picking the next word from trigram novelty scores. */
+  wordPickCandidateCount: 10,
 };
 
 export const CHART_CONFIG = {
