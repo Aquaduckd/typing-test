@@ -6,14 +6,14 @@ Monkeytype-style timing and feel, with ngram-aware feedback layered on top.
 
 ## How practice works
 
-The site tracks your slowest trigrams over time and marks them with **orange underlines** before you reach them — a cue to pay extra attention, not to slow down.
+The site tracks your slowest trigrams over time and marks them with **orange underlines** before you reach them - a cue to focus on typing that ngram faster. 
 
 As you type through each one:
 
 - **Green** — faster than your average; you nailed it at speed
 - **Red** — slower than your average this time
 
-The idea is simple: watch for orange, stay at pace, and try to turn it green. Over time those weak spots stop showing up.
+The idea is simple: watch for orange, stay at pace, and try to turn it green. 
 
 ## Typing test
 
@@ -51,7 +51,6 @@ Choose what you practice on:
 
 - Presets: **e200**, **1k**, **5k**, **10k**, **25k**, **450k**
 - **Custom** list — paste your own words (saved locally)
-- Changes apply on the next test restart
 
 ## Run locally
 
