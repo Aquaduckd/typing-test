@@ -1,14 +1,50 @@
-# Minimal Monkeytype-style Typing Test
+# Typing Test
 
-A small typing test inspired by [Monkeytype](https://monkeytype.com): hidden textarea input, custom letter rendering, and a smoothly animated caret.
+A fast, Monkeytype-style typing test that runs entirely in the browser. Type through random words, review detailed results, and track your progress over time.
 
-## Stack
+## Typing test
 
-- TypeScript
-- Vite
-- Tailwind CSS v4 (utility classes only — no custom stylesheets)
+- **15-second timed test** — start typing on any key; a progress bar shows time remaining.
+- **Monkeytype-style feel** — hidden input, per-letter highlighting, smooth caret, and line scrolling as you move through longer passages.
+- **Click to focus** — click the word area if focus drifts.
+- **Restart with Esc** — press Esc to reset. If you restart mid-test, the same word list is kept so you can retry the same text.
+- **Slow trigram hints** — while you type, underlines mark trigrams that tend to be slow for you. Green means faster than your average; red means slower.
 
-## Run
+## Results
+
+After each test, the results tab shows:
+
+- **WPM, raw WPM, accuracy, and consistency**
+- **WPM chart** with burst, raw, and error overlays (toggle series on and off)
+- **Bigram and trigram breakdown** for that run, including lifetime averages for comparison
+- **Date and time** of the result (your last result is saved locally)
+
+## Ngrams
+
+Lifetime bigram and trigram stats build up as you complete tests:
+
+- Sortable tables for bigrams and trigrams (avg ms and count)
+- **Download JSON** export with a timestamped filename
+- **Reset ngrams** to clear lifetime typing-timing data
+
+Trigram timing is based on the text you were meant to type. Uncorrected mistakes apply a max penalty so bad runs do not skew your profile as if you typed cleanly.
+
+## Stats
+
+Track overall progress:
+
+- **Tests started** and **tests completed**
+- **Personal bests** per word list — best WPM, accuracy, and date for each preset (and custom lists)
+
+## Words
+
+Choose what you practice on:
+
+- Presets: **e200**, **1k**, **5k**, **10k**, **25k**, **450k**
+- **Custom** list — paste your own words (saved locally)
+- Changes apply on the next test restart
+
+## Run locally
 
 ```bash
 cd typing-test
@@ -18,23 +54,9 @@ npm run dev
 
 Open the URL Vite prints (usually `http://localhost:5173`).
 
-## How it works
+Build for production:
 
-1. **`#words-input`** — invisible textarea captures keyboard input (with Monkeytype's leading-space trick).
-2. **`beforeinput` / `input`** — validates keystrokes, tracks stats, commits words on space.
-3. **`#words`** — each word is a `<div class="word">` with `<letter>` children; classes update as you type.
-4. **`#caret`** — separate DOM element positioned over the active letter, animated with the Web Animations API when smooth caret is on.
-
-## Project layout
-
-```
-src/
-  main.ts           App bootstrap & event wiring
-  input-element.ts  Hidden textarea helpers
-  input-handler.ts  Insert/delete logic
-  caret.ts          Smooth caret positioning
-  render.ts         Word/letter DOM updates
-  state.ts          Test state
-  stats.ts          WPM & accuracy
-  style.css         Tailwind import only
+```bash
+npm run build
+npm run preview
 ```
