@@ -1,18 +1,11 @@
-import english from "./data/english.json";
 import { TEST_CONFIG } from "./config";
 import { loadStoredNgramStats } from "./ngram-storage";
 import { getActiveWordList } from "./word-list-storage";
-import { pickNextWord, rollWordPickMode, type WordPickMode } from "./word-picker";
-
-export type GeneratedWords = {
-  words: string[];
-  pickMode: WordPickMode;
-};
+import { pickNextWord } from "./word-picker";
 
 /** Mirrors Monkeytype's default word selection from the language list. */
 export function generateWords(
   count: number,
-  pickMode: WordPickMode,
   alreadyUsed: readonly string[] = [],
 ): string[] {
   const wordList = getActiveWordList();
@@ -31,7 +24,6 @@ export function generateWords(
       previousWord,
       previousWord2,
       usedWords,
-      pickMode,
     );
 
     words.push(word);
@@ -44,21 +36,10 @@ export function generateWords(
   return words;
 }
 
-export function generateInitialWordBuffer(): GeneratedWords {
-  const pickMode = rollWordPickMode();
-  return {
-    words: generateWords(TEST_CONFIG.wordBufferSize, pickMode),
-    pickMode,
-  };
+export function generateInitialWordBuffer(): string[] {
+  return generateWords(TEST_CONFIG.wordBufferSize);
 }
 
-export function generateWordAppendBatch(
-  alreadyUsed: readonly string[],
-  pickMode: WordPickMode,
-): string[] {
-  return generateWords(TEST_CONFIG.wordAppendBatch, pickMode, alreadyUsed);
-}
-
-export function getLanguageName(): string {
-  return english.name;
+export function generateWordAppendBatch(alreadyUsed: readonly string[]): string[] {
+  return generateWords(TEST_CONFIG.wordAppendBatch, alreadyUsed);
 }

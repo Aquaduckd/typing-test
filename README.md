@@ -56,15 +56,15 @@ Choose what you practice on:
 - Presets: **e200**, **1k**, **5k**, **10k**, **25k**, **450k**
 - **Custom** list — paste your own words (saved locally)
 
-Word selection is **trigram-informed**, not purely random:
+Word selection is **cap-head informed**, not purely random:
 
-1. Draw **50 random candidates** from the active list (fast even on large lists like 450k)
-2. Score each by **average trigram novelty** — trigrams you have typed less often score higher
+1. Draw **500 random candidates** from the active list (fast even on large lists like 450k)
+2. Score each by **cap head** — prefer words whose hottest trigram has the lowest count; tie-break on lower average count
 3. Scoring is **context-aware** — includes cross-word boundary trigrams based on the text so far
 4. Pick the **highest-scoring** candidate (random tie-break)
 5. **Prefer unique words** within a test — no repeats until every word in the list has appeared once
 
-Until you have trigram history, selection behaves like weighted random among unique words. As stats build up, under-practiced letter patterns show up more often in your passages.
+Until you have trigram history, selection behaves like weighted random among unique words. As stats build up, over-represented letter patterns are avoided so practice spreads more evenly.
 
 ## Run locally
 

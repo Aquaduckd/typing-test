@@ -54,7 +54,7 @@ function ensureWordBuffer(state: TestState): void {
   if (!shouldAppendWords(state)) return;
 
   const startIndex = state.words.length;
-  const newWords = generateWordAppendBatch(state.words, state.wordPickMode);
+  const newWords = generateWordAppendBatch(state.words);
   appendWords(state, newWords);
   appendWordsToDom(state.words, newWords, startIndex);
 }

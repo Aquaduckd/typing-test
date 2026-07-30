@@ -1,7 +1,5 @@
 import { TEST_CONFIG } from "./config";
 
-import type { WordPickMode } from "./word-picker";
-
 export type TestMode = typeof TEST_CONFIG.mode;
 
 export type KeystrokeEvent = {
@@ -20,7 +18,6 @@ export type TestState = {
   mode: TestMode;
   timeLimitSeconds: number;
   words: string[];
-  wordPickMode: WordPickMode;
   activeWordIndex: number;
   startedAt: number | null;
   finished: boolean;
@@ -30,15 +27,11 @@ export type TestState = {
   completedWords: CompletedWord[];
 };
 
-export function createInitialState(
-  words: string[],
-  wordPickMode: WordPickMode = "trigram",
-): TestState {
+export function createInitialState(words: string[]): TestState {
   return {
     mode: TEST_CONFIG.mode,
     timeLimitSeconds: TEST_CONFIG.timeLimitSeconds,
     words,
-    wordPickMode,
     activeWordIndex: 0,
     startedAt: null,
     finished: false,

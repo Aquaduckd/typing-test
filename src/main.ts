@@ -55,14 +55,13 @@ import {
   setSlowTrigramWordsProvider,
 } from "./slow-trigram-lines";
 import { generateInitialWordBuffer } from "./words-generator";
-import { setWordPickSubtitleCue } from "./word-pick-subtitle-cue";
 
 const statusEl = queryRequired<HTMLElement>("#status");
 const resultRestartBtn = queryRequired<HTMLButtonElement>("#result-restart");
 const wordsWrapper = queryRequired<HTMLElement>("#words-wrapper");
 
 const initialWords = generateInitialWordBuffer();
-let state: TestState = createInitialState(initialWords.words, initialWords.pickMode);
+let state: TestState = createInitialState(initialWords);
 let activeTestWordList: WordListSelection = "e200";
 let testStartRecorded = false;
 
@@ -132,12 +131,10 @@ function initTest(options?: { keepWords?: boolean }): void {
   stopTestTimer();
 
   const keepWords = options?.keepWords ?? false;
-  const generated = keepWords
-    ? { words: [...state.words], pickMode: state.wordPickMode }
-    : generateInitialWordBuffer();
+  const words = keepWords ? [...state.words] : generateInitialWordBuffer();
   const preserveStartCount = keepWords && isMidTest();
 
-  state = createInitialState(generated.words, generated.pickMode);
+  state = createInitialState(words);
 
   if (!keepWords) {
     activeTestWordList = loadWordListSelection() ?? "e200";
@@ -157,7 +154,6 @@ function initTest(options?: { keepWords?: boolean }): void {
   startBlinking();
   resetTestProgress();
   setStatus("Press any key to start");
-  setWordPickSubtitleCue(state.wordPickMode);
 
   scheduleViewportLayout();
 }

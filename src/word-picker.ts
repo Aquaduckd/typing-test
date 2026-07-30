@@ -40,7 +40,8 @@ export function collectWordTrigramLabels(flatBefore: string, word: string): stri
   return labels;
 }
 
-export function scoreWordTrigramNovelty(
+/** Minimize the hottest trigram on the word; tie-break on lower average count. */
+export function scoreWordCapHead(
   flatBefore: string,
   word: string,
   stats: StoredNgramStats,
@@ -48,14 +49,17 @@ export function scoreWordTrigramNovelty(
   const labels = collectWordTrigramLabels(flatBefore, word);
   if (labels.length === 0) return 0;
 
-  let score = 0;
+  let maxCount = 0;
+  let sumCount = 0;
 
   for (const label of labels) {
     const count = stats.trigrams[label]?.count ?? 0;
-    score += 1 / (count + 1);
+    maxCount = Math.max(maxCount, count);
+    sumCount += count;
   }
 
-  return score / labels.length;
+  const avgCount = sumCount / labels.length;
+  return 1 / (maxCount + 1) * 1000 + 1 / (avgCount + 1);
 }
 
 export function pickRandomWordCandidates(
@@ -100,7 +104,7 @@ export function pickRandomWordCandidates(
   return candidates;
 }
 
-export function pickBestTrigramWord(
+export function pickCapHeadWord(
   flatBefore: string,
   wordList: string[],
   stats: StoredNgramStats,
@@ -124,11 +128,11 @@ export function pickBestTrigramWord(
     : candidates;
   const pool = scoreCandidates.length > 0 ? scoreCandidates : candidates;
 
-  let bestScore = -1;
+  let bestScore = -Infinity;
   let bestCandidates: string[] = [];
 
   for (const word of pool) {
-    const score = scoreWordTrigramNovelty(flatBefore, word, stats);
+    const score = scoreWordCapHead(flatBefore, word, stats);
     if (score > bestScore) {
       bestScore = score;
       bestCandidates = [word];
@@ -144,12 +148,6 @@ export function pickBestTrigramWord(
   );
 }
 
-export type WordPickMode = "trigram" | "random";
-
-export function rollWordPickMode(): WordPickMode {
-  return Math.random() < TEST_CONFIG.wordPickRandomRate ? "random" : "trigram";
-}
-
 export function pickNextWord(
   flatBefore: string,
   wordList: string[],
@@ -157,13 +155,8 @@ export function pickNextWord(
   previousWord: string,
   previousWord2: string,
   usedWords: ReadonlySet<string>,
-  mode: WordPickMode,
 ): string {
-  if (mode === "random") {
-    return pickRandomWord(wordList, previousWord, previousWord2, usedWords);
-  }
-
-  return pickBestTrigramWord(
+  return pickCapHeadWord(
     flatBefore,
     wordList,
     stats,
