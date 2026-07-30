@@ -35,8 +35,12 @@ import { buildTestResult, getResultKeystrokes } from "./result-stats";
 import { loadStoredLastResult } from "./result-storage";
 import { refreshResultsView, setLastResult } from "./result";
 import { onSiteTabChange, setSiteTab, getSiteTab } from "./site-nav";
+import { refreshNgramsView } from "./ngrams-page";
 import { refreshStatsView } from "./stats-page";
+import { recordTestCompleted, recordTestStarted } from "./test-stats-storage";
 import { refreshWordsView } from "./words-page";
+import { loadWordListSelection } from "./word-list-storage";
+import type { WordListSelection } from "./word-list-presets";
 import { createInitialState, getTypedTargetFlatLength, type TestState } from "./state";
 import {
   completeTestProgress,
@@ -56,6 +60,8 @@ const resultRestartBtn = queryRequired<HTMLButtonElement>("#result-restart");
 const wordsWrapper = queryRequired<HTMLElement>("#words-wrapper");
 
 let state: TestState = createInitialState(generateInitialWordBuffer());
+let activeTestWordList: WordListSelection = "e200";
+let testStartRecorded = false;
 
 registerCaretLineJumpHandler(handleCaretLineJump);
 
@@ -72,6 +78,11 @@ function completeTest(): void {
 
   const resultData = buildTestResult(state);
   recordKeystrokeNgrams(getResultKeystrokes(state));
+  recordTestCompleted(
+    activeTestWordList,
+    resultData.wpm,
+    resultData.accuracy,
+  );
   setLastResult(resultData);
   setStatus("");
   stopBlinking();
@@ -97,6 +108,8 @@ function scheduleViewportLayout(): void {
 function initTest(): void {
   stopTestTimer();
   state = createInitialState(generateInitialWordBuffer());
+  activeTestWordList = loadWordListSelection() ?? "e200";
+  testStartRecorded = false;
 
   clearInputValue();
   renderWords(state.words);
@@ -112,6 +125,11 @@ function initTest(): void {
 }
 
 function handleInsertResult(result: ReturnType<typeof emulateInsertText>): void {
+  if (result.started && !testStartRecorded) {
+    recordTestStarted();
+    testStartRecorded = true;
+  }
+
   if (result.started) {
     setStatus("Keep going…");
     startTestProgress(state.timeLimitSeconds);
@@ -226,6 +244,9 @@ onSiteTabChange((tab) => {
   }
   if (tab === "stats") {
     refreshStatsView();
+  }
+  if (tab === "ngrams") {
+    refreshNgramsView();
   }
   if (tab === "words") {
     refreshWordsView();

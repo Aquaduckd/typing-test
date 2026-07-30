@@ -20,6 +20,11 @@ export const WORD_LIST_PRESETS: WordListPreset[] = [
   "450k",
 ];
 
+export const WORD_LIST_SELECTIONS: WordListSelection[] = [
+  ...WORD_LIST_PRESETS,
+  "custom",
+];
+
 const PRESET_WORDS: Record<WordListPreset, string[]> = {
   e200: english.words,
   "1k": english1k.words,

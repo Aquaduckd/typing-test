@@ -45,6 +45,13 @@
             results
           </button>
           <button
+            id="site-tab-ngrams"
+            type="button"
+            class="rounded border border-zinc-700 px-3 py-1.5 text-zinc-500 transition hover:border-zinc-500 hover:text-zinc-300"
+          >
+            ngrams
+          </button>
+          <button
             id="site-tab-stats"
             type="button"
             class="rounded border border-zinc-700 px-3 py-1.5 text-zinc-500 transition hover:border-zinc-500 hover:text-zinc-300"
@@ -332,29 +339,29 @@
           </div>
         </section>
 
-        <section id="site-panel-stats" class="hidden flex-col gap-6">
+        <section id="site-panel-ngrams" class="hidden flex-col gap-6">
           <div
-            id="stats-empty"
+            id="ngrams-empty"
             class="flex flex-1 flex-col items-center justify-center rounded-xl border border-zinc-800/80 bg-zinc-900/40 px-6 py-24 text-center"
           >
-            <p class="text-sm text-zinc-500">No stats yet.</p>
+            <p class="text-sm text-zinc-500">No ngram data yet.</p>
             <p class="mt-2 text-xs text-zinc-600">
               Complete tests to build lifetime bigram and trigram averages.
             </p>
           </div>
 
-          <div id="stats-content" class="hidden flex-col gap-6 px-1 py-2 sm:px-2">
+          <div id="ngrams-content" class="hidden flex-col gap-6 px-1 py-2 sm:px-2">
             <div class="flex items-center justify-between gap-2 px-1 text-xs">
               <div class="flex gap-2">
                 <button
-                  id="stats-tab-bigrams"
+                  id="ngrams-tab-bigrams"
                   type="button"
                   class="rounded border border-zinc-700 px-2 py-1 text-zinc-500 transition hover:border-zinc-500 hover:text-zinc-300"
                 >
                   bigrams
                 </button>
                 <button
-                  id="stats-tab-trigrams"
+                  id="ngrams-tab-trigrams"
                   type="button"
                   class="rounded border border-amber-500/60 px-2 py-1 text-amber-400 transition hover:border-amber-400"
                 >
@@ -363,23 +370,23 @@
               </div>
               <div class="flex gap-2">
                 <button
-                  id="stats-copy-json"
+                  id="ngrams-copy-json"
                   type="button"
                   class="rounded-md border border-zinc-700 px-3 py-1.5 text-zinc-400 transition hover:border-zinc-500 hover:text-zinc-200"
                 >
                   Copy JSON
                 </button>
                 <button
-                  id="stats-reset"
+                  id="ngrams-reset"
                   type="button"
                   class="rounded-md border border-red-500/60 px-3 py-1.5 text-red-400 transition hover:border-red-400 hover:text-red-300"
                 >
-                  Reset stats
+                  Reset ngrams
                 </button>
               </div>
             </div>
 
-            <div id="stats-bigrams-panel" class="hidden flex-col gap-8">
+            <div id="ngrams-bigrams-panel" class="hidden flex-col gap-8">
               <div class="min-h-96 rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6">
                 <div class="max-h-[28rem] overflow-y-auto px-1">
                   <table class="w-full text-left text-sm tabular-nums">
@@ -387,7 +394,7 @@
                       <tr>
                         <th class="px-3 py-3 align-middle font-medium">
                           <button
-                            id="stats-bigram-sort-name"
+                            id="ngrams-bigram-sort-name"
                             type="button"
                             class="inline-flex cursor-pointer items-center p-0 text-inherit transition hover:text-zinc-300"
                           >
@@ -396,7 +403,7 @@
                         </th>
                         <th class="px-3 py-3 align-middle font-medium">
                           <button
-                            id="stats-bigram-sort-ms"
+                            id="ngrams-bigram-sort-ms"
                             type="button"
                             class="inline-flex cursor-pointer items-center p-0 text-inherit transition hover:text-zinc-300"
                           >
@@ -405,7 +412,7 @@
                         </th>
                         <th class="px-3 py-3 align-middle font-medium">
                           <button
-                            id="stats-bigram-sort-count"
+                            id="ngrams-bigram-sort-count"
                             type="button"
                             class="inline-flex cursor-pointer items-center p-0 text-inherit transition hover:text-zinc-300"
                           >
@@ -414,16 +421,16 @@
                         </th>
                       </tr>
                     </thead>
-                    <tbody id="stats-bigrams-body" class="text-zinc-300"></tbody>
+                    <tbody id="ngrams-bigrams-body" class="text-zinc-300"></tbody>
                   </table>
-                  <p id="stats-bigrams-empty" class="hidden px-3 py-4 text-sm text-zinc-500">
+                  <p id="ngrams-bigrams-empty" class="hidden px-3 py-4 text-sm text-zinc-500">
                     Not enough keystrokes for bigram data.
                   </p>
                 </div>
               </div>
             </div>
 
-            <div id="stats-trigrams-panel" class="flex flex-col gap-8">
+            <div id="ngrams-trigrams-panel" class="flex flex-col gap-8">
               <div class="min-h-96 rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6">
                 <div class="max-h-[28rem] overflow-y-auto px-1">
                   <table class="w-full text-left text-sm tabular-nums">
@@ -431,7 +438,7 @@
                       <tr>
                         <th class="px-3 py-3 align-middle font-medium">
                           <button
-                            id="stats-trigram-sort-name"
+                            id="ngrams-trigram-sort-name"
                             type="button"
                             class="inline-flex cursor-pointer items-center p-0 text-inherit transition hover:text-zinc-300"
                           >
@@ -440,7 +447,7 @@
                         </th>
                         <th class="px-3 py-3 align-middle font-medium">
                           <button
-                            id="stats-trigram-sort-ms"
+                            id="ngrams-trigram-sort-ms"
                             type="button"
                             class="inline-flex cursor-pointer items-center p-0 text-inherit transition hover:text-zinc-300"
                           >
@@ -449,7 +456,7 @@
                         </th>
                         <th class="px-3 py-3 align-middle font-medium">
                           <button
-                            id="stats-trigram-sort-count"
+                            id="ngrams-trigram-sort-count"
                             type="button"
                             class="inline-flex cursor-pointer items-center p-0 text-inherit transition hover:text-zinc-300"
                           >
@@ -458,13 +465,50 @@
                         </th>
                       </tr>
                     </thead>
-                    <tbody id="stats-trigrams-body" class="text-zinc-300"></tbody>
+                    <tbody id="ngrams-trigrams-body" class="text-zinc-300"></tbody>
                   </table>
-                  <p id="stats-trigrams-empty" class="hidden px-3 py-4 text-sm text-zinc-500">
+                  <p id="ngrams-trigrams-empty" class="hidden px-3 py-4 text-sm text-zinc-500">
                     Not enough keystrokes for trigram data.
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="site-panel-stats" class="hidden flex-col gap-6 px-1 py-2 sm:px-2">
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6">
+              <p class="text-xs uppercase tracking-wider text-zinc-500">tests started</p>
+              <p id="lifetime-tests-started" class="mt-2 text-3xl font-medium tabular-nums text-zinc-100">
+                0
+              </p>
+            </div>
+            <div class="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6">
+              <p class="text-xs uppercase tracking-wider text-zinc-500">tests completed</p>
+              <p
+                id="lifetime-tests-completed"
+                class="mt-2 text-3xl font-medium tabular-nums text-zinc-100"
+              >
+                0
+              </p>
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-zinc-800/80 bg-zinc-900/40 p-6">
+            <h2 class="text-xs uppercase tracking-wider text-zinc-500">personal bests</h2>
+            <div class="mt-4 overflow-x-auto">
+              <table class="w-full min-w-[24rem] text-left text-sm tabular-nums">
+                <thead class="text-xs uppercase tracking-wider text-zinc-500">
+                  <tr>
+                    <th class="px-3 py-2 font-medium">wordlist</th>
+                    <th class="px-3 py-2 font-medium">wpm</th>
+                    <th class="px-3 py-2 font-medium">accuracy</th>
+                    <th class="px-3 py-2 font-medium">date</th>
+                  </tr>
+                </thead>
+                <tbody id="lifetime-pb-body" class="text-zinc-300"></tbody>
+              </table>
             </div>
           </div>
         </section>

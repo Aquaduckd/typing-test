@@ -1,20 +1,23 @@
 import { queryRequired } from "./dom";
 
-export type SiteTab = "test" | "results" | "stats" | "words";
+export type SiteTab = "test" | "results" | "ngrams" | "stats" | "words";
 
 const tabTestBtn = queryRequired<HTMLButtonElement>("#site-tab-test");
 const tabResultsBtn = queryRequired<HTMLButtonElement>("#site-tab-results");
 const tabStatsBtn = queryRequired<HTMLButtonElement>("#site-tab-stats");
+const tabNgramsBtn = queryRequired<HTMLButtonElement>("#site-tab-ngrams");
 const tabWordsBtn = queryRequired<HTMLButtonElement>("#site-tab-words");
 const testPanelEl = queryRequired<HTMLElement>("#site-panel-test");
 const resultsPanelEl = queryRequired<HTMLElement>("#site-panel-results");
 const statsPanelEl = queryRequired<HTMLElement>("#site-panel-stats");
+const ngramsPanelEl = queryRequired<HTMLElement>("#site-panel-ngrams");
 const wordsPanelEl = queryRequired<HTMLElement>("#site-panel-words");
 
 const TAB_BUTTONS: Record<SiteTab, HTMLButtonElement> = {
   test: tabTestBtn,
   results: tabResultsBtn,
   stats: tabStatsBtn,
+  ngrams: tabNgramsBtn,
   words: tabWordsBtn,
 };
 
@@ -22,6 +25,7 @@ const TAB_PANELS: Record<SiteTab, HTMLElement> = {
   test: testPanelEl,
   results: resultsPanelEl,
   stats: statsPanelEl,
+  ngrams: ngramsPanelEl,
   words: wordsPanelEl,
 };
 
@@ -82,6 +86,10 @@ tabResultsBtn.addEventListener("click", () => {
 
 tabStatsBtn.addEventListener("click", () => {
   setSiteTab("stats");
+});
+
+tabNgramsBtn.addEventListener("click", () => {
+  setSiteTab("ngrams");
 });
 
 tabWordsBtn.addEventListener("click", () => {
