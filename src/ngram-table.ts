@@ -97,7 +97,7 @@ function appendGlobalMeanDeltaCell(cell: HTMLTableCellElement, row: NgramStat): 
     return;
   }
 
-  cell.className = `${base} ${delta > 0 ? "text-emerald-400" : "text-red-400"}`;
+  cell.className = `${base} ${delta > 0 ? "text-red-400" : "text-emerald-400"}`;
   cell.textContent = `${delta > 0 ? "↑" : "↓"}${Math.abs(delta)}`;
 }
 
