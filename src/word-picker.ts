@@ -62,6 +62,18 @@ export function scoreWordCapHead(
   return 1 / (maxCount + 1) * 1000 + 1 / (avgCount + 1);
 }
 
+/** Shortlist size: ⌊word list length / 4⌋, at least 1, capped at wordPickCandidateMax. */
+export function wordPickCandidateCount(wordListLength: number): number {
+  if (wordListLength <= 0) return 1;
+  return Math.max(
+    1,
+    Math.min(
+      Math.floor(wordListLength / 4),
+      TEST_CONFIG.wordPickCandidateMax,
+    ),
+  );
+}
+
 function shuffleInPlace<T>(items: T[]): void {
   for (let i = items.length - 1; i > 0; i -= 1) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -74,7 +86,7 @@ export function pickRandomWordCandidates(
   previousWord: string,
   previousWord2: string,
   usedWords: ReadonlySet<string>,
-  count = TEST_CONFIG.wordPickCandidateCount,
+  count: number,
   allowUsedWords = false,
 ): string[] {
   if (wordList.length === 0) return [];
@@ -123,6 +135,7 @@ export function pickCapHeadWord(
     previousWord,
     previousWord2,
     usedWords,
+    wordPickCandidateCount(wordList.length),
   );
 
   if (candidates.length === 0) {

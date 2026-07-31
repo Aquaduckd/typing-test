@@ -58,7 +58,7 @@ Choose what you practice on:
 
 Word selection is **cap-head informed**, not purely random:
 
-1. Draw **200 random candidates** from the active list (fast even on large lists like 450k)
+1. Draw **⌊list size / 4⌋** random candidates (min 1, max **200**) from the active list
 2. Score each by **cap head** — prefer words whose hottest trigram has the lowest count; tie-break on lower average count
 3. Scoring is **context-aware** — includes cross-word boundary trigrams based on the text so far
 4. Pick **uniformly at random** from the **top 50** cap-head scores in that shortlist

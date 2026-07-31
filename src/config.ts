@@ -6,8 +6,8 @@ export const TEST_CONFIG = {
   /** Append more words when the cursor gets this close to the end. */
   wordAppendThreshold: 5,
   wordAppendBatch: 20,
-  /** Random shortlist size when picking the next word from cap-head scores. */
-  wordPickCandidateCount: 200,
+  /** Cap-head shortlist: ⌊word list size / 4⌋, capped at this maximum. */
+  wordPickCandidateMax: 200,
   /** Uniform random pick among the K highest cap-head scores in the shortlist. */
   wordPickTopK: 50,
 };
