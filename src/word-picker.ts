@@ -62,6 +62,13 @@ export function scoreWordCapHead(
   return 1 / (maxCount + 1) * 1000 + 1 / (avgCount + 1);
 }
 
+function shuffleInPlace<T>(items: T[]): void {
+  for (let i = items.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [items[i], items[j]] = [items[j]!, items[i]!];
+  }
+}
+
 export function pickRandomWordCandidates(
   wordList: string[],
   previousWord: string,
@@ -72,14 +79,12 @@ export function pickRandomWordCandidates(
 ): string[] {
   if (wordList.length === 0) return [];
 
-  const candidates: string[] = [];
-  const seen = new Set<string>();
-  const maxAttempts = Math.max(count * 20, count);
   const skipUsed =
     !allowUsedWords && prefersUnusedWords(wordList, usedWords);
 
-  for (let attempt = 0; attempt < maxAttempts && candidates.length < count; attempt += 1) {
-    const word = wordList[Math.floor(Math.random() * wordList.length)] ?? "";
+  const eligible: string[] = [];
+  const seen = new Set<string>();
+  for (const word of wordList) {
     if (!word || !isAllowedWord(word, previousWord, previousWord2)) continue;
 
     const normalized = word.toLowerCase();
@@ -87,10 +92,10 @@ export function pickRandomWordCandidates(
     if (skipUsed && usedWords.has(normalized)) continue;
 
     seen.add(normalized);
-    candidates.push(word);
+    eligible.push(word);
   }
 
-  if (candidates.length === 0 && skipUsed) {
+  if (eligible.length === 0 && skipUsed) {
     return pickRandomWordCandidates(
       wordList,
       previousWord,
@@ -101,7 +106,8 @@ export function pickRandomWordCandidates(
     );
   }
 
-  return candidates;
+  shuffleInPlace(eligible);
+  return eligible.slice(0, Math.min(count, eligible.length));
 }
 
 export function pickCapHeadWord(
