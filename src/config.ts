@@ -8,8 +8,8 @@ export const TEST_CONFIG = {
   wordAppendBatch: 20,
   /** Random shortlist size when picking the next word from cap-head scores. */
   wordPickCandidateCount: 200,
-  /** Favorability weight exponent: weight ∝ (score − min + ε)^wordPickWeightExponent. */
-  wordPickWeightExponent: 0.5,
+  /** Uniform random pick among the K highest cap-head scores in the shortlist. */
+  wordPickTopK: 25,
 };
 
 export const CHART_CONFIG = {

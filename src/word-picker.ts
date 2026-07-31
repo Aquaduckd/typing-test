@@ -130,26 +130,21 @@ export function pickCapHeadWord(
 
   if (pool.length === 1) return pool[0]!;
 
-  const scored = pool.map((word) => ({
-    word,
-    score: scoreWordCapHead(flatBefore, word, stats),
-  }));
+  const scored = pool
+    .map((word) => ({
+      word,
+      score: scoreWordCapHead(flatBefore, word, stats),
+    }))
+    .sort((a, b) => b.score - a.score);
 
-  const minScore = Math.min(...scored.map((s) => s.score));
-  const exponent = Math.max(TEST_CONFIG.wordPickWeightExponent, 0);
-  const weights = scored.map((s) =>
-    Math.pow(s.score - minScore + 1e-6, exponent),
+  const k = Math.max(
+    1,
+    Math.min(TEST_CONFIG.wordPickTopK, scored.length),
   );
-  const total = weights.reduce((sum, w) => sum + w, 0);
-
-  let roll = Math.random() * total;
-  for (let i = 0; i < scored.length; i++) {
-    roll -= weights[i]!;
-    if (roll <= 0) return scored[i]!.word;
-  }
-
+  const top = scored.slice(0, k);
+  const index = Math.floor(Math.random() * top.length);
   return (
-    scored[scored.length - 1]?.word ??
+    top[index]?.word ??
     pickRandomWord(wordList, previousWord, previousWord2, usedWords)
   );
 }
