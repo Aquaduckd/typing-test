@@ -81,19 +81,15 @@ function shuffleInPlace<T>(items: T[]): void {
   }
 }
 
-export function pickRandomWordCandidates(
+/** Scan the full list once, shuffle eligible words, take the first count. */
+function pickCandidatesByFilterShuffle(
   wordList: string[],
   previousWord: string,
   previousWord2: string,
   usedWords: ReadonlySet<string>,
   count: number,
-  allowUsedWords = false,
+  skipUsed: boolean,
 ): string[] {
-  if (wordList.length === 0) return [];
-
-  const skipUsed =
-    !allowUsedWords && prefersUnusedWords(wordList, usedWords);
-
   const eligible: string[] = [];
   const seen = new Set<string>();
   for (const word of wordList) {
@@ -107,7 +103,87 @@ export function pickRandomWordCandidates(
     eligible.push(word);
   }
 
-  if (eligible.length === 0 && skipUsed) {
+  shuffleInPlace(eligible);
+  return eligible.slice(0, Math.min(count, eligible.length));
+}
+
+/** Random index sampling until count unique eligible words or attempt cap. */
+function pickCandidatesByRandomSample(
+  wordList: string[],
+  previousWord: string,
+  previousWord2: string,
+  usedWords: ReadonlySet<string>,
+  count: number,
+  skipUsed: boolean,
+): string[] {
+  const candidates: string[] = [];
+  const seen = new Set<string>();
+  const maxAttempts = Math.max(count * 25, 400);
+
+  for (
+    let attempt = 0;
+    attempt < maxAttempts && candidates.length < count;
+    attempt += 1
+  ) {
+    const word =
+      wordList[Math.floor(Math.random() * wordList.length)] ?? "";
+    if (!word || !isAllowedWord(word, previousWord, previousWord2)) continue;
+
+    const normalized = word.toLowerCase();
+    if (seen.has(normalized)) continue;
+    if (skipUsed && usedWords.has(normalized)) continue;
+
+    seen.add(normalized);
+    candidates.push(word);
+  }
+
+  return candidates;
+}
+
+/** Small lists and tight unused pools: scan all. Large sparse pools: random sample. */
+function shouldScanAllWords(
+  wordListLength: number,
+  usedWordsSize: number,
+  count: number,
+  skipUsed: boolean,
+): boolean {
+  if (wordListLength <= count * 2) return true;
+  if (!skipUsed) return false;
+  return wordListLength - usedWordsSize <= count * 10;
+}
+
+export function pickRandomWordCandidates(
+  wordList: string[],
+  previousWord: string,
+  previousWord2: string,
+  usedWords: ReadonlySet<string>,
+  count: number,
+  allowUsedWords = false,
+): string[] {
+  if (wordList.length === 0) return [];
+
+  const skipUsed =
+    !allowUsedWords && prefersUnusedWords(wordList, usedWords);
+
+  const pick = shouldScanAllWords(
+    wordList.length,
+    usedWords.size,
+    count,
+    skipUsed,
+  )
+    ? pickCandidatesByFilterShuffle
+    : pickCandidatesByRandomSample;
+
+  const candidates = pick(
+    wordList,
+    previousWord,
+    previousWord2,
+    usedWords,
+    count,
+    skipUsed,
+  );
+
+  if (candidates.length === 0 && skipUsed) {
     return pickRandomWordCandidates(
       wordList,
       previousWord,
@@ -118,8 +194,24 @@ export function pickRandomWordCandidates(
     );
   }
 
-  shuffleInPlace(eligible);
-  return eligible.slice(0, Math.min(count, eligible.length));
+  if (
+    candidates.length < count &&
+    !shouldScanAllWords(wordList.length, usedWords.size, count, skipUsed)
+  ) {
+    const filled = pickCandidatesByFilterShuffle(
+      wordList,
+      previousWord,
+      previousWord2,
+      usedWords,
+      count,
+      skipUsed,
+    );
+    if (filled.length > candidates.length) {
+      return filled.slice(0, Math.min(count, filled.length));
+    }
+  }
+
+  return candidates;
 }
 
 export function pickCapHeadWord(
