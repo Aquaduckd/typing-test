@@ -61,7 +61,7 @@ Word selection is **cap-head informed**, not purely random:
 1. Draw **200 random candidates** from the active list (fast even on large lists like 450k)
 2. Score each by **cap head** — prefer words whose hottest trigram has the lowest count; tie-break on lower average count
 3. Scoring is **context-aware** — includes cross-word boundary trigrams based on the text so far
-4. Pick **uniformly at random** from the **top 25** cap-head scores in that shortlist
+4. Pick **uniformly at random** from the **top 50** cap-head scores in that shortlist
 5. **Prefer unique words** within a test — no repeats until every word in the list has appeared once
 
 Until you have trigram history, selection behaves like weighted random among unique words. As stats build up, over-represented letter patterns are avoided so practice spreads more evenly.

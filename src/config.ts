@@ -9,7 +9,7 @@ export const TEST_CONFIG = {
   /** Random shortlist size when picking the next word from cap-head scores. */
   wordPickCandidateCount: 200,
   /** Uniform random pick among the K highest cap-head scores in the shortlist. */
-  wordPickTopK: 25,
+  wordPickTopK: 50,
 };
 
 export const CHART_CONFIG = {
